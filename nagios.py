@@ -78,5 +78,5 @@ class GetCriticalHostNagios:
 
 
 if __name__ == "__main__":
-    res = GetCriticalHostNagios(login="chief", passwd="Ghjdthrf")
+    res = GetCriticalHostNagios(login="wew", passwd="wewe")
     print(res.get_all_hosts(), sep="\n")
