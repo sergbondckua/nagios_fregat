@@ -2,8 +2,10 @@ import asyncio
 import logging
 
 from aiogram import Bot, types
+from aiogram.utils.markdown import text, hbold, quote_html
 from environs import Env
 
+import const_texts as ct
 from nagios import GetCriticalHostNagios
 
 logging.basicConfig(
@@ -32,10 +34,14 @@ class NagiosTelegramNotifier:
         """Send a list of checked"""
 
         if hosts:
-            msg = "<b>Хости статус яких змінився:</b>\n\n" +\
-                  "\n".join(hosts) + \
-                  "\n\n----\n <a href='http://193.108.248.20/nagios/cgi-bin/status.cgi?host=all&servicestatustypes=16'>" \
-                  "Nagios</a>, /nagios"
+            msg = text(
+                ct.changed_hosts_status, "\n".join(hosts),
+                text(
+                    "----", f"<a href='{ct.url_nagios}'>Nagios</a> | /nagios",
+                    sep="\n",
+                ),
+                sep="\n\n",
+            )
             await self.bot.send_message(chat_id=self.chat_id, text=msg)
         else:
             self.logger.info("The current status of the hosts has not changed")
@@ -44,8 +50,11 @@ class NagiosTelegramNotifier:
         """Sends a notification with all critical hosts"""
 
         if hosts:
-            msg = "<b>Всі непрацюючі хости:</b>\n\n" + \
-                  "\n".join("🔻 " + str(*i) for i in hosts)
+            msg = text(
+                ct.all_down_hosts,
+                "\n".join("🟥 " + str(*i) for i in hosts),
+                sep="\n\n",
+            )
             await self.bot.send_message(chat_id=self.chat_id, text=msg)
             self.logger.info(
                 "Critical hosts: %s. Sent to Telegram chat: %s", len(hosts),

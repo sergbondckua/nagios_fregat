@@ -10,6 +10,17 @@ class DataBaseOperations:
         self._connect_sql = sqlite3.connect("monitor.db")
         self._cursor = self._connect_sql.cursor()
 
+    async def create_tables(self) -> None:
+        """Create tables in the database if they don't already exist"""
+        with self._connect_sql:
+            self._cursor.execute("""
+                CREATE TABLE IF NOT EXISTS failed_resources (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    host_name TEXT UNIQUE
+                )
+            """)
+            self._connect_sql.commit()
+
     async def write_all_hosts_to_db(self, hosts: list[tuple[str]]) -> None:
         """Write the host names to the database"""
 
