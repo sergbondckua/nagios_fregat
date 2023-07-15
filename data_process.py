@@ -64,13 +64,18 @@ class DataBaseOperations:
 
     async def check_hosts_from_db(self, hosts):
         """Check the host names from the database"""
+        hosts_in_db = await self.get_all_hosts_from_db()
+        diff_hosts = set(hosts) ^ set(hosts_in_db)
 
-        for host in hosts:
-            if host not in await self.get_all_hosts_from_db():
-                print(host)
+        for host in diff_hosts:
+            up = []
+            down = []
+            if host not in hosts_in_db:
+                print("was created", host)
+
                 await self.write_one_host_to_db(host)
             else:
-                print(host)
+                print("was deleted", host)
                 await self.delete_one_host_from_db(host)
 
 

@@ -6,7 +6,6 @@ from environs import Env
 
 from nagios import GetCriticalHostNagios
 
-
 logging.basicConfig(
     format="%(filename)s [LINE:%(lineno)d] #%(levelname)-4s [%(asctime)s]  %(message)s",
     level=logging.INFO,
@@ -40,6 +39,10 @@ async def send_message_to_telegram_chat(chat_id) -> None:
         await bot.send_message(chat_id=chat_id, text=msg)
     else:
         logger.warning("Not found data. Data is empty.")
+
+
+async def send_checked_hosts(hosts: list) -> None:
+    """Send a list of checked"""
 
 
 async def main():
