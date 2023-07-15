@@ -1,5 +1,4 @@
 import logging
-import asyncio
 import aiohttp
 from aiogram import Bot, types
 from bs4 import BeautifulSoup
@@ -11,6 +10,7 @@ logging.basicConfig(
     level=logging.INFO,
 )
 
+# Read environment variables
 env = Env()
 env.read_env()
 
@@ -71,7 +71,7 @@ class GetCriticalHostNagios:
 
         return await response.text()
 
-    async def get_all_hosts(self) -> list[tuple]:
+    async def get_all_critical_hosts(self) -> list[tuple[str]]:
         """Retrieves a list of critical hosts_name from Nagios."""
 
         async with aiohttp.ClientSession() as session:
@@ -86,20 +86,7 @@ class GetCriticalHostNagios:
             return [(self._get_one_host(host),) for host in hosts_name]
 
     @staticmethod
-    def _get_one_host(host):
+    def _get_one_host(host: BeautifulSoup) -> str:
         """Extracts the host name from a BeautifulSoup object."""
 
         return host.find("a").text.strip()
-
-
-async def main():
-    login = env.str("LOGIN_NAGIOS")
-    password = env.str("PASSWD_NAGIOS")
-    parser = GetCriticalHostNagios(login, password)
-    critical_hosts = await parser.get_all_hosts()
-    print(critical_hosts)
-
-
-if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
