@@ -10,3 +10,4 @@ start_text = text(
     hcode("Powered by Serhii Bondarenko aka Ninja."),
     sep="\n",
 )
+all_ok = text("Все добре! Не знайдено проблем")

@@ -1,23 +1,19 @@
-import sqlite3
+from aiogram.utils.markdown import text
 
-from environs import Env
-
-from data_process import DataBaseOperations
+from utils.db.data_process import DataBaseOperations
 from nagios import GetCriticalHostNagios
-from send import NagiosTelegramNotifier
-
-# Read environment variables
-env = Env()
-env.read_env()
+import const_texts as ct
+from loader import dp, env
+from utils.log import logger
 
 
 async def monitoring():
     """Monitoring the network host"""
 
     # Instantiate the Nagios parser
-    parser = GetCriticalHostNagios(
-        login=env.str("LOGIN_NAGIOS"), passwd=env.str("PASSWD_NAGIOS")
-    )
+    username = env.str("LOGIN_NAGIOS")
+    password = env.str("PASSWD_NAGIOS")
+    parser = GetCriticalHostNagios(login=username, passwd=password)
 
     # Get all critical hosts from Nagios
     hosts = await parser.get_all_critical_hosts()
@@ -26,10 +22,20 @@ async def monitoring():
     db = DataBaseOperations()
 
     # Check hosts status from the database
-    up_down_hosts = await db.check_hosts_from_db(hosts)
-
-    # Initialize the Telegram notifier
-    sender = NagiosTelegramNotifier(chat_id=env.int("CHAT_DEV_ID"))
+    changed_hosts = await db.check_hosts_from_db(hosts)
 
     # Send in Telegram the list of checked hosts
-    await sender.send_checked_hosts_list(up_down_hosts)
+    if changed_hosts:
+        msg = text(
+            ct.changed_hosts_status,
+            "\n".join(changed_hosts),
+            text(
+                "----",
+                f"👉 <a href='{ct.url_nagios}'>Nagios</a> | /nagios",
+                sep="\n",
+            ),
+            sep="\n\n",
+        )
+        await dp.bot.send_message(chat_id=env.int("CHATSUPPORT_ID"), text=msg)
+    else:
+        logger.info("The current status of the hosts has not changed")

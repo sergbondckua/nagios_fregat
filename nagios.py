@@ -50,7 +50,7 @@ class GetCriticalHostNagios:
             "hostgroup": "all",
             "style": "detail",
             "servicestatustypes": 16,
-            "hoststatustypes": 15,
+            "limit": 0,
         }
         self.bot = Bot(
             token=env.str("BOT_TOKEN"), parse_mode=types.ParseMode.HTML)

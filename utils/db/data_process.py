@@ -1,13 +1,15 @@
-import logging
 import sqlite3
+
+from loader import BASE_DIR
+from utils.log import logger
 
 
 class DataBaseOperations:
     """Operations with the SQLite database"""
 
     def __init__(self):
-        self.logger = logging.getLogger(__name__)
-        self._connect_sql = sqlite3.connect("monitor.db")
+        self.logger = logger
+        self._connect_sql = sqlite3.connect(BASE_DIR / "db.sqlite3")
         self._cursor = self._connect_sql.cursor()
 
     async def create_tables(self) -> None:
@@ -40,7 +42,10 @@ class DataBaseOperations:
 
         with self._connect_sql:
             self._cursor.execute("SELECT host_name FROM failed_resources")
-        return self._cursor.fetchall()
+        hosts = self._cursor.fetchall()
+        self.logger.info("Host names retrieved from the database")
+
+        return hosts
 
     async def delete_one_host_from_db(self, host: tuple[str]) -> None:
         """Delete a single host from the database"""
@@ -63,7 +68,10 @@ class DataBaseOperations:
             result.append("".join(f"{host_status} {i}" for i in host))
             if host not in hosts_in_db:
                 await self.write_one_host_to_db(host)
+                self.logger.info("Host name added to the database: %s", host)
             else:
                 await self.delete_one_host_from_db(host)
+                self.logger.info(
+                    "Host name deleted from the database: %s", host)
 
         return result
