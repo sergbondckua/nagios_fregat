@@ -1,9 +1,9 @@
 from aiogram.utils.markdown import text
 
-from utils.db.data_process import DataBaseOperations
-from nagios import GetCriticalHostNagios
 import const_texts as ct
 from loader import dp, env
+from utils.db.data_process import DataBaseOperations
+from utils.nagios import GetCriticalHostNagios
 from utils.log import logger
 
 

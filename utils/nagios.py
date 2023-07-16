@@ -1,18 +1,12 @@
 import logging
 import aiohttp
-from aiogram import Bot, types
 from bs4 import BeautifulSoup
-from environs import Env
 from fake_useragent import UserAgent
 
 logging.basicConfig(
     format="%(filename)s [LINE:%(lineno)d] #%(levelname)-4s [%(asctime)s]  %(message)s",
     level=logging.INFO,
 )
-
-# Read environment variables
-env = Env()
-env.read_env()
 
 
 class GetCriticalHostNagios:
@@ -26,7 +20,6 @@ class GetCriticalHostNagios:
         logger (logging.Logger): Logger instance for logging.
         headers (dict): Headers for the HTTP requests.
         params (dict): Parameters for the Nagios status page request.
-        bot (aiogram.Bot): Bot instance for sending messages to Telegram.
     """
 
     _URL = "http://193.108.248.20/nagios/cgi-bin/status.cgi"
@@ -52,8 +45,6 @@ class GetCriticalHostNagios:
             "servicestatustypes": 16,
             "limit": 0,
         }
-        self.bot = Bot(
-            token=env.str("BOT_TOKEN"), parse_mode=types.ParseMode.HTML)
 
     async def fetch_data(self, session) -> str|None:
         """Fetches data from the specified URL using the provided session."""

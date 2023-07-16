@@ -1,15 +1,15 @@
 from aiogram import types, executor
 from aiogram.utils.markdown import text
+
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from apsched.check_hosts import monitoring
-from utils.db.data_process import DataBaseOperations
+import const_texts as ct
 from loader import dp, env
-from nagios import GetCriticalHostNagios
+from utils.db.data_process import DataBaseOperations
+from utils.nagios import GetCriticalHostNagios
 from utils.log import logger
 from utils.set_bot_commands import set_default_commands
-import const_texts as ct
-
 
 # Create a scheduler
 scheduler = AsyncIOScheduler(timezone="Europe/Kiev")
