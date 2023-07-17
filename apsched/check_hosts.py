@@ -1,3 +1,5 @@
+import datetime
+
 from aiogram.utils.markdown import text
 
 import const_texts as ct
@@ -9,6 +11,10 @@ from utils.log import logger
 
 async def monitoring():
     """Monitoring the network host"""
+    now = datetime.datetime.now().time()
+    start_time = datetime.time(7, 0)
+    end_time = datetime.time(22, 0)
+    is_silent = start_time > now or end_time < now
 
     # Instantiate the Nagios parser
     username = env.str("LOGIN_NAGIOS")
@@ -36,6 +42,10 @@ async def monitoring():
             ),
             sep="\n\n",
         )
-        await dp.bot.send_message(chat_id=env.int("CHATSUPPORT_ID"), text=msg)
+        await dp.bot.send_message(
+            chat_id=env.int("CHAT_SUPPORT_ID"),
+            disable_notification=True,
+            text=msg,
+        )
     else:
         logger.info("The current status of the hosts has not changed")

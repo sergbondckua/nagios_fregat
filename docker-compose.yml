@@ -1,0 +1,14 @@
+version: "3"
+
+services:
+  bot:
+    build: .
+    container_name: bot_nagios_fregat
+    command: python bot.py
+    env_file:
+      - .env
+    volumes:
+      - .:/usr/src/app
+
+volumes:
+  .:
