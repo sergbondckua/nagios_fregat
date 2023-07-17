@@ -1,9 +1,7 @@
-import datetime
-
 from aiogram.utils.markdown import text
 
 import const_texts as ct
-from loader import dp, env
+from loader import dp, env, is_silent
 from utils.db.data_process import DataBaseOperations
 from utils.nagios import GetCriticalHostNagios
 from utils.log import logger
@@ -11,10 +9,6 @@ from utils.log import logger
 
 async def monitoring():
     """Monitoring the network host"""
-    now = datetime.datetime.now().time()
-    start_time = datetime.time(7, 0)
-    end_time = datetime.time(22, 0)
-    is_silent = start_time > now or end_time < now
 
     # Instantiate the Nagios parser
     username = env.str("LOGIN_NAGIOS")
@@ -44,7 +38,7 @@ async def monitoring():
         )
         await dp.bot.send_message(
             chat_id=env.int("CHAT_SUPPORT_ID"),
-            disable_notification=True,
+            disable_notification=is_silent(),
             text=msg,
         )
     else:

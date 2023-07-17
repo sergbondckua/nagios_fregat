@@ -4,11 +4,9 @@ services:
   bot:
     build: .
     container_name: bot_nagios_fregat
+    restart: always
     command: python bot.py
     env_file:
       - .env
     volumes:
       - .:/usr/src/app
-
-volumes:
-  .:

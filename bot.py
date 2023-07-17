@@ -5,7 +5,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from apsched.check_hosts import monitoring
 import const_texts as ct
-from loader import dp, env
+from loader import dp, env, is_silent
 from utils.db.data_process import DataBaseOperations
 from utils.nagios import GetCriticalHostNagios
 from utils.log import logger
@@ -42,7 +42,7 @@ async def send_all_critical_hosts(message: types.Message):
             "Critical hosts: %s. Sent to Telegram chat: %s", len(hosts),
             message.chat.id)
     else:
-        await message.answer(text=ct.all_ok)
+        await message.answer(text=ct.all_ok, disable_notification=is_silent())
         logger.warning("No critical hosts found. Data is empty.")
 
 
@@ -56,7 +56,7 @@ async def on_start(dispatcher):
     await DataBaseOperations().create_tables()
 
     # Add tasks apscheduler
-    scheduler.add_job(monitoring, "interval", seconds=10)
+    scheduler.add_job(monitoring, "interval", minutes=10)
 
     # Start the scheduler
     scheduler.start()
