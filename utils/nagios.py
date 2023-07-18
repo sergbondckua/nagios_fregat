@@ -14,7 +14,7 @@ class GetCriticalHostNagios:
     Parser for retrieving critical hosts from Nagios.
 
     Attributes:
-        _URL (str): The URL of the Nagios status page.
+        url (str): The URL of the Nagios status page.
         login (str): Nagios login.
         passwd (str): Nagios password.
         logger (logging.Logger): Logger instance for logging.
@@ -22,16 +22,16 @@ class GetCriticalHostNagios:
         params (dict): Parameters for the Nagios status page request.
     """
 
-    _URL = "http://193.108.248.20/nagios/cgi-bin/status.cgi"
-
-    def __init__(self, login, passwd):
+    def __init__(self, url: str, login: str, passwd: str):
         """
         Initializes the GetCriticalHostNagios instance.
 
         Args:
+            url (str): The Nagios URL.
             login (str): Nagios login.
             passwd (str): Nagios password.
         """
+        self.url = url
         self.login = login
         self.passwd = passwd
         self.logger = logging.getLogger(__name__)
@@ -46,19 +46,23 @@ class GetCriticalHostNagios:
             "limit": 0,
         }
 
-    async def fetch_data(self, session) -> str|None:
+    async def fetch_data(self, session) -> str | None:
         """Fetches data from the specified URL using the provided session."""
 
         response = await session.get(
-            url=self._URL,
+            url=self.url,
             params=self.params,
             auth=aiohttp.BasicAuth(self.login, self.passwd),
             headers=self.headers,
             timeout=3,
         )
-        if response.status != 200:
-            self.logger.error("Error")
-            return None
+
+        try:
+            # Raises an exception for non-2xx status codes
+            response.raise_for_status()
+        except aiohttp.ClientResponseError as e:
+            self.logger.error("Error: %s", e)
+            return
 
         return await response.text()
 
@@ -67,9 +71,12 @@ class GetCriticalHostNagios:
 
         async with aiohttp.ClientSession() as session:
             html = await self.fetch_data(session)
+
             if html is None:
-                return []
+                return [("Error: Nagios authorization failed",)]
+
             soup = BeautifulSoup(html, "lxml")
+
             hosts_name = soup.find_all(
                 "td",
                 {"class": "statusBGCRITICAL", "valign": "center", "align": "left"}

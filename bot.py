@@ -28,7 +28,9 @@ async def send_all_critical_hosts(message: types.Message):
     """Sends a notification with all critical hosts"""
 
     parser = GetCriticalHostNagios(
-        login=env.str("LOGIN_NAGIOS"), passwd=env.str("PASSWD_NAGIOS")
+        url=env.str("URL_NAGIOS"),
+        login=env.str("LOGIN_NAGIOS"),
+        passwd=env.str("PASSWD_NAGIOS"),
     )
 
     if hosts := await parser.get_all_critical_hosts():
@@ -56,7 +58,7 @@ async def on_start(dispatcher):
     await DataBaseOperations().create_tables()
 
     # Add tasks apscheduler
-    scheduler.add_job(monitoring, "interval", minutes=10)
+    scheduler.add_job(monitoring, "interval", seconds=10)
 
     # Start the scheduler
     scheduler.start()

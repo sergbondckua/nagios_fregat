@@ -11,9 +11,11 @@ async def monitoring():
     """Monitoring the network host"""
 
     # Instantiate the Nagios parser
-    username = env.str("LOGIN_NAGIOS")
-    password = env.str("PASSWD_NAGIOS")
-    parser = GetCriticalHostNagios(login=username, passwd=password)
+    parser = GetCriticalHostNagios(
+        url=env.str("URL_NAGIOS"),
+        login=env.str("LOGIN_NAGIOS"),
+        passwd=env.str("PASSWD_NAGIOS"),
+    )
 
     # Get all critical hosts from Nagios
     hosts = await parser.get_all_critical_hosts()
