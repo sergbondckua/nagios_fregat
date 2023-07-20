@@ -1,5 +1,8 @@
-import datetime
+from datetime import datetime, time
 from pathlib import Path
+
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from pytz import timezone
 
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -17,12 +20,20 @@ dp = Dispatcher(bot, storage=storage)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
 
+# Create a scheduler
+scheduler = AsyncIOScheduler(timezone=env.str("TZ"))
 
-def is_silent():
-    """Returns True if the current time is within the range"""
 
-    now = datetime.datetime.now().time()
-    start_time = datetime.time(7, 0)
-    end_time = datetime.time(22, 0)
+def is_night_time():
+    """
+    Checks if the current time is within the night hours.
 
-    return start_time > now or end_time < now
+    Returns:
+        bool: True if the current time is during the night, False otherwise.
+    """
+
+    now = datetime.now(tz=timezone(env.str("TZ"))).time()
+    start_night_time = time(22, 0)
+    end_night_time = time(7, 0)
+
+    return start_night_time <= now or now <= end_night_time

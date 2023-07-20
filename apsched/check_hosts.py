@@ -1,7 +1,7 @@
 from aiogram.utils.markdown import text
 
 import const_texts as ct
-from loader import dp, env, is_silent
+from loader import dp, env, is_night_time
 from utils.db.data_process import DataBaseOperations
 from utils.nagios import GetCriticalHostNagios
 from utils.log import logger
@@ -40,7 +40,7 @@ async def monitoring():
         )
         await dp.bot.send_message(
             chat_id=env.int("CHAT_SUPPORT_ID"),
-            disable_notification=is_silent(),
+            disable_notification=is_night_time(),
             text=msg,
         )
     else:

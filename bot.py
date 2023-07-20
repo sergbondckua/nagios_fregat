@@ -1,18 +1,13 @@
 from aiogram import types, executor
 from aiogram.utils.markdown import text
 
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-
 from apsched.check_hosts import monitoring
 import const_texts as ct
-from loader import dp, env, is_silent
+from loader import dp, env, is_night_time, scheduler
 from utils.db.data_process import DataBaseOperations
 from utils.nagios import GetCriticalHostNagios
 from utils.log import logger
 from utils.set_bot_commands import set_default_commands
-
-# Create a scheduler
-scheduler = AsyncIOScheduler(timezone="Europe/Kiev")
 
 
 @dp.message_handler(commands=["start", "help"])
@@ -44,7 +39,7 @@ async def send_all_critical_hosts(message: types.Message):
             "Critical hosts: %s. Sent to Telegram chat: %s", len(hosts),
             message.chat.id)
     else:
-        await message.answer(text=ct.all_ok, disable_notification=is_silent())
+        await message.answer(text=ct.all_ok, disable_notification=is_night_time())
         logger.warning("No critical hosts found. Data is empty.")
 
 
