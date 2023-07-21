@@ -15,7 +15,8 @@ async def send_welcome(message: types.Message):
     """
     This handler will be called when user sends `/start` or `/help` command
     """
-    await message.answer(ct.start_text)
+    bot_name = (await message.bot.get_me()).first_name
+    await message.answer(ct.start_text % bot_name)
 
 
 @dp.message_handler(commands=["nagios", "check"])

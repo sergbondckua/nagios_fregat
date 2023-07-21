@@ -1,12 +1,14 @@
 from aiogram.utils.markdown import text, hbold, hcode
+from loader import env
 
 all_down_hosts = text(hbold("Всі непрацюючі адреси:"))
 changed_hosts_status = text(hbold("Адреси статус яких змінився:"))
 url_nagios = text(
-    "http://193.108.248.20/nagios/cgi-bin/status.cgi?host=all&servicestatustypes=16"
+    env.str("URL_NAGIOS") + "?host=all&servicestatustypes=16&limit=0"
 )
+
 start_text = text(
-    hbold("Hello!"), "I'm Fregi!",
+    hbold("Привіт!"), "Я бот 🤖 %s",
     hcode("Powered by Serhii Bondarenko aka Ninja."),
     sep="\n",
 )
