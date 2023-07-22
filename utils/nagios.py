@@ -79,7 +79,11 @@ class GetCriticalHostNagios:
 
             hosts_name = soup.find_all(
                 "td",
-                {"class": "statusBGCRITICAL", "valign": "center", "align": "left"}
+                {
+                    "class": "statusBGCRITICAL",
+                    "valign": "center",
+                    "align": "left",
+                }
             )
             return [(self._get_one_host(host),) for host in hosts_name]
 

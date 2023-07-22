@@ -1,5 +1,4 @@
 from aiogram import types, executor
-from aiogram.utils.markdown import text
 
 from apsched.check_hosts import monitoring
 import const_texts as ct
@@ -30,17 +29,17 @@ async def send_all_critical_hosts(message: types.Message):
     )
 
     if hosts := await parser.get_all_critical_hosts():
-        msg = text(
-            ct.all_down_hosts + f" ({len(hosts)})",
-            "\n".join("🟥 • " + str(*i) for i in hosts),
-            sep="\n\n",
-        )
-        await message.answer(text=msg)
+
+        # Convert the list of changed hosts to a formatted string
+        hosts_str = "\n".join("🟥 • " + str(*i) for i in hosts)
+
+        await message.answer(text=ct.all_down_hosts % (len(hosts), hosts_str))
         logger.info(
             "Critical hosts: %s. Sent to Telegram chat: %s", len(hosts),
             message.chat.id)
     else:
-        await message.answer(text=ct.all_ok, disable_notification=is_night_time())
+        await message.answer(
+            text=ct.all_ok, disable_notification=is_night_time())
         logger.warning("No critical hosts found. Data is empty.")
 
 
