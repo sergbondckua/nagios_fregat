@@ -1,9 +1,11 @@
 from aiogram import types, executor
+from aiogram.types import CallbackQuery
 
 from apsched.check_hosts import monitoring
 import const_texts as ct
 from loader import dp, env, is_night_time, scheduler
 from utils.db.data_process import DataBaseOperations
+from utils.keyboards import make_inline_keyboard
 from utils.nagios import GetCriticalHostNagios
 from utils.log import logger
 from utils.set_bot_commands import set_default_commands
@@ -33,14 +35,51 @@ async def send_all_critical_hosts(message: types.Message):
         # Convert the list of changed hosts to a formatted string
         hosts_str = "\n".join("🟥 • " + str(i[0]) for i in hosts)
 
-        await message.answer(text=ct.all_down_hosts % (len(hosts), hosts_str))
+        keyboard = await make_inline_keyboard(
+            "🕵 Детально", "details", row_width=1)
+
+        await message.answer(
+            text=ct.all_down_hosts % (len(hosts), hosts_str),
+            disable_notification=is_night_time(),
+            reply_markup=keyboard,
+        )
         logger.info(
             "Critical hosts: %s. Sent to Telegram chat: %s", len(hosts),
             message.chat.id)
     else:
         await message.answer(
-            text=ct.all_ok, disable_notification=is_night_time())
+            text=ct.all_ok,
+            disable_notification=is_night_time(),
+        )
         logger.warning("No critical hosts found. Data is empty.")
+
+
+@dp.callback_query_handler(text_contains="details")
+async def send_all_critical_hosts_with_down_time(call: CallbackQuery):
+    """Sends all the details of all hosts that are down."""
+
+    await call.message.edit_reply_markup()
+    await call.message.delete()
+
+    parser = GetCriticalHostNagios(
+        url=env.str("URL_NAGIOS"),
+        login=env.str("LOGIN_NAGIOS"),
+        passwd=env.str("PASSWD_NAGIOS"),
+    )
+
+    if hosts := await parser.get_all_critical_hosts():
+
+        # Convert the list of changed hosts to a formatted string
+        hosts_str = "\n".join(
+            "🔻 <b>|-- " + str(i[0]) + "</b>\n       <b>|--</b>  " + str(i[1]) + "\n"
+            for i in hosts)
+
+        await call.message.answer(
+            text=ct.all_down_hosts % (len(hosts), hosts_str),
+        )
+        logger.info(
+            "Critical hosts: %s. Sent to Telegram chat: %s",
+            len(hosts), call.message.chat.id)
 
 
 async def on_start(dispatcher):
