@@ -53,7 +53,7 @@ async def on_start(dispatcher):
     await DataBaseOperations().create_tables()
 
     # Add tasks apscheduler
-    scheduler.add_job(monitoring, "interval", seconds=10)
+    scheduler.add_job(monitoring, "interval", seconds=90)
 
     # Start the scheduler
     scheduler.start()

@@ -130,8 +130,7 @@ class GetCriticalHostNagios:
         match = re.match(pattern, time_str)
 
         if match:
-            # days, hours, minutes, seconds = [int(x) for x in match.groups()]
-            days, hours, minutes, seconds = map(int, match.groups())
+            days, hours, minutes, seconds = [int(x) for x in match.groups()]
             return timedelta(
                 days=days, hours=hours, minutes=minutes, seconds=seconds)
         raise ValueError("Wrong time string format.")

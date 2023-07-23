@@ -23,8 +23,8 @@ async def monitoring():
     # Filter 'hosts' list based on timedelta condition,
     # and create a set of host names.
     critical_hosts_delta = [
-        (i[0],) for i in critical_hosts if i[1] > timedelta(
-            minutes=env.int("DOWN_TIME_MINUTES"))]
+        (i[0],) for i in critical_hosts if i[1] >= timedelta(
+            minutes=env.int("MAX_ALLOWABLE_DOWN_TIME_MINUTES"))]
 
     # Initialize the database operations
     db = DataBaseOperations()
