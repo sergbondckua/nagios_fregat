@@ -31,7 +31,7 @@ async def send_all_critical_hosts(message: types.Message):
     if hosts := await parser.get_all_critical_hosts():
 
         # Convert the list of changed hosts to a formatted string
-        hosts_str = "\n".join("🟥 • " + str(*i) for i in hosts)
+        hosts_str = "\n".join("🟥 • " + str(i[0]) for i in hosts)
 
         await message.answer(text=ct.all_down_hosts % (len(hosts), hosts_str))
         logger.info(
@@ -53,7 +53,7 @@ async def on_start(dispatcher):
     await DataBaseOperations().create_tables()
 
     # Add tasks apscheduler
-    scheduler.add_job(monitoring, "interval", minutes=10)
+    scheduler.add_job(monitoring, "interval", seconds=10)
 
     # Start the scheduler
     scheduler.start()

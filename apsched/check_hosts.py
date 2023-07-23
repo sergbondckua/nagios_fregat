@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import const_texts as ct
 from loader import dp, env, is_night_time
 from utils.db.data_process import DataBaseOperations
@@ -18,11 +20,17 @@ async def monitoring():
     # Get all critical hosts from Nagios
     critical_hosts = await nagios_parser.get_all_critical_hosts()
 
+    # Filter 'hosts' list based on timedelta condition,
+    # and create a set of host names.
+    critical_hosts_delta = [
+        (i[0],) for i in critical_hosts if i[1] > timedelta(
+            minutes=env.int("DOWN_TIME_MINUTES"))]
+
     # Initialize the database operations
     db = DataBaseOperations()
 
     # Check hosts status from the database
-    changed_hosts = await db.check_hosts_from_db(critical_hosts)
+    changed_hosts = await db.check_hosts_from_db(critical_hosts_delta)
 
     # Send in Telegram the list of checked hosts
     if changed_hosts:

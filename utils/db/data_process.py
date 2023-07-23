@@ -59,6 +59,7 @@ class DataBaseOperations:
         """Check the host names from the database"""
 
         hosts_in_db = await self.get_all_hosts_from_db()
+
         # Find the difference between the input hosts and database hosts
         diff_hosts = set(hosts) ^ set(hosts_in_db)
         result = []
