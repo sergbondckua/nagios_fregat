@@ -1,12 +1,18 @@
 ## Телеграм бот для моніторингу Nagios (шляхом парсингу веб-сторінки)
 
+
+> [![Python 3.11](https://img.shields.io/badge/python-3.10_|_3.11-blue?labelColor=blue&color=yellow)](https://www.python.org/)
+> [![Aiogram](https://img.shields.io/badge/aiogram-v2.25.1-blue)](https://docs.aiogram.dev/en/latest/)
+> [![Code Style](https://img.shields.io/badge/codestyle-black-black)](https://github.com/psf/black)
+
+
 Цей проект є телеграм ботом, який взаємодіє з моніторинговою системою Nagios, використовуючи метод парсингу даних з веб-сторінки. Бот буде сканувати стан адрес кожні `N` секунд і, якщо будь-яка адреса буде непрацюючою протягом `MAX_DOWN_TIME_MINUTES` хвилин і більше, бот надішле повідомлення в `CHAT_SUPPORT_ID` чат.
 
 ### Вимоги
 
 Переконайтеся, що у вас є наступне:
 
-1. **Python**: Бот написаний на Python, тому переконайтеся, що у вас встановлений Python 3.10 <+.
+1. **Python**: Бот написаний на Python, тому переконайтеся, що у вас встановлений Python 3.10+.
 
 2. **Telegram Bot Token**: Отримайте токен для свого бота від [@BotFather](https://t.me/BotFather) в Телеграмі.
 
