@@ -17,16 +17,16 @@ async def make_inline_keyboard(
     :return: InlineKeyboardMarkup
     """
 
-    group_buttons = InlineKeyboardMarkup(row_width=row_width)
+    buttons_group = InlineKeyboardMarkup(row_width=row_width)
 
     for i in range(0, len(btn_texts_and_callback_data), 2):
         text = btn_texts_and_callback_data[i]
         callback_data = btn_texts_and_callback_data[i + 1]
-        group_buttons.insert(
+        buttons_group.insert(
             InlineKeyboardButton(text=text, callback_data=callback_data)
         )
 
-    return group_buttons
+    return buttons_group
 
 
 async def make_reply_keyboard(
