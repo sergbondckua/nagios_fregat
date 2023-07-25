@@ -10,9 +10,7 @@ from utils.set_bot_commands import set_default_commands
 # Register handlers for messages
 dp.register_message_handler(start.send_welcome, commands=["start"])
 dp.register_message_handler(helps.send_help, commands=["help"])
-dp.register_message_handler(
-    ch.send_critical_hosts_message, commands=["nagios", "check"]
-)
+dp.register_message_handler(ch.send_critical_hosts_message, commands=["nagios"])
 dp.register_callback_query_handler(
     ch.send_detailed_critical_hosts_message, text_contains="details"
 )
