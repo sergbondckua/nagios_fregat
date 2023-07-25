@@ -25,7 +25,7 @@ async def send_critical_hosts_message(message: types.Message):
     if hosts := await get_all_critical_hosts_info():
 
         # Convert the list of changed hosts to a formatted string
-        hosts_str = "\n".join("🟥 • " + i[0] for i in hosts)
+        hosts_str = "\n".join(ct.host_name_row % (i[0],) for i in hosts)
 
         keyboard = await make_inline_keyboard(ct.btn_detail, "details")
 
@@ -53,7 +53,8 @@ async def send_detailed_critical_hosts_message(call: types.CallbackQuery):
 
     if hosts := await get_all_critical_hosts_info():
         # Convert the list of changed hosts to a formatted string
-        hosts_str = "\n\n".join(ct.host_name_row % (i[0], i[1]) for i in hosts)
+        hosts_str = "\n\n".join(
+            ct.host_detail_name_row % (i[0], i[1]) for i in hosts)
 
         await call.message.answer(
             text=ct.all_down_hosts % (len(hosts), hosts_str),
