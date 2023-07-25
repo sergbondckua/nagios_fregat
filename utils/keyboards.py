@@ -7,7 +7,8 @@ from aiogram.types import (
 
 
 async def make_inline_keyboard(
-        *btn_texts_and_callback_data: str, row_width: int = 1,
+    *btn_texts_and_callback_data: str,
+    row_width: int = 1,
 ) -> InlineKeyboardMarkup:
     """
     Creates an InlineKeyboardMarkup object with the given buttons.
@@ -22,13 +23,15 @@ async def make_inline_keyboard(
         text = btn_texts_and_callback_data[i]
         callback_data = btn_texts_and_callback_data[i + 1]
         group_buttons.insert(
-            InlineKeyboardButton(text=text, callback_data=callback_data))
+            InlineKeyboardButton(text=text, callback_data=callback_data)
+        )
 
     return group_buttons
 
 
 async def make_reply_keyboard(
-        words: list[str], row_width: int = 1) -> ReplyKeyboardMarkup:
+    words: list[str], row_width: int = 1
+) -> ReplyKeyboardMarkup:
     """
     Create an ReplyKeyboardMarkup object with the given words
     :param words: Name of the buttons

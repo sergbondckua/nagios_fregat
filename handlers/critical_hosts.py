@@ -23,7 +23,6 @@ async def send_critical_hosts_message(message: types.Message):
     """Sends a notification with all critical hosts"""
 
     if hosts := await get_all_critical_hosts_info():
-
         # Convert the list of changed hosts to a formatted string
         hosts_str = "\n".join(ct.host_name_row % (i[0],) for i in hosts)
 
@@ -35,8 +34,8 @@ async def send_critical_hosts_message(message: types.Message):
             reply_markup=keyboard,
         )
         logger.info(
-            "Critical hosts: %s. Sent to Telegram chat: %s", len(hosts),
-            message.chat.id)
+            "Critical hosts: %s. Sent to Telegram chat: %s", len(hosts), message.chat.id
+        )
     else:
         await message.answer(
             text=ct.all_ok,
@@ -61,4 +60,6 @@ async def send_detailed_critical_hosts_message(call: types.CallbackQuery):
         )
         logger.info(
             "Critical detailed hosts: %s. Sent to Telegram chat: %s",
-            len(hosts), call.message.chat.id)
+            len(hosts),
+            call.message.chat.id,
+        )

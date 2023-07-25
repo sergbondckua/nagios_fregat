@@ -15,12 +15,14 @@ class DataBaseOperations:
     async def create_tables(self) -> None:
         """Create tables in the database if they don't already exist"""
         with self._connect_sql:
-            self._cursor.execute("""
+            self._cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS failed_resources (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     host_name TEXT UNIQUE
                 )
-            """)
+            """
+            )
             self._connect_sql.commit()
 
     async def write_all_hosts_to_db(self, hosts: list[tuple[str]]) -> None:
@@ -52,7 +54,8 @@ class DataBaseOperations:
 
         with self._connect_sql:
             self._cursor.execute(
-                "DELETE FROM failed_resources WHERE host_name = (?)", host)
+                "DELETE FROM failed_resources WHERE host_name = (?)", host
+            )
             self._connect_sql.commit()
 
     async def check_hosts_from_db(self, hosts: list[tuple[str]]) -> list[str]:
@@ -69,10 +72,9 @@ class DataBaseOperations:
             result.append("".join(f"{host_status} {i}" for i in host))
             if host not in hosts_in_db:
                 await self.write_one_host_to_db(host)
-                self.logger.info("Host name added to the database: %s", host)
+                self.logger.info("Host added to the database: %s", host)
             else:
                 await self.delete_one_host_from_db(host)
-                self.logger.info(
-                    "Host name deleted from the database: %s", host)
+                self.logger.info("Host deleted from the database: %s", host)
 
         return result

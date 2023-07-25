@@ -11,9 +11,11 @@ from utils.set_bot_commands import set_default_commands
 dp.register_message_handler(start.send_welcome, commands=["start"])
 dp.register_message_handler(helps.send_help, commands=["help"])
 dp.register_message_handler(
-    ch.send_critical_hosts_message, commands=["nagios", "check"])
+    ch.send_critical_hosts_message, commands=["nagios", "check"]
+)
 dp.register_callback_query_handler(
-        ch.send_detailed_critical_hosts_message, text_contains="details")
+    ch.send_detailed_critical_hosts_message, text_contains="details"
+)
 
 
 async def on_start(dispatcher):

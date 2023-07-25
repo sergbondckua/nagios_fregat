@@ -15,6 +15,7 @@ logging.basicConfig(
 class AuthorizedException(Exception):
     """Exception raised when a user is not authorized"""
 
+
 class GetCriticalHostNagios:
     """
     Parser for retrieving critical hosts from Nagios.
@@ -94,16 +95,14 @@ class GetCriticalHostNagios:
             soup = BeautifulSoup(html, "lxml")
 
             table = soup.find("table", {"class": "status"})
-            critical_hosts = table.find_all(
-                "td", {"class": "statusBGCRITICAL"})
+            critical_hosts = table.find_all("td", {"class": "statusBGCRITICAL"})
 
             critical_hosts_info = [
                 (
                     host.find("a").text.strip(),
                     await self.parse_timedelta(downtime.text.strip()),
                 )
-                for host, downtime in zip(
-                    critical_hosts[::7], critical_hosts[4::7])
+                for host, downtime in zip(critical_hosts[::7], critical_hosts[4::7])
             ]
 
             return critical_hosts_info
@@ -123,14 +122,16 @@ class GetCriticalHostNagios:
         """
 
         # Remove duplicate spaces and replace them with single spaces
-        time_str = re.sub(r'\s+', ' ', time_str)
+        time_str = re.sub(r"\s+", " ", time_str)
 
         # Using a Regular Expression to Extract Numeric Values from a String
-        pattern = r'(\d+)d (\d+)h (\d+)m (\d+)s'
+        pattern = r"(\d+)d (\d+)h (\d+)m (\d+)s"
         match = re.match(pattern, time_str)
 
         if match:
             days, hours, minutes, seconds = [int(x) for x in match.groups()]
+
             return timedelta(
                 days=days, hours=hours, minutes=minutes, seconds=seconds)
+
         raise ValueError("Wrong time string format.")
