@@ -1,24 +1,16 @@
 from datetime import timedelta
 
 import const_texts as ct
-from loader import dp, env, is_night_time
+from loader import dp, env, is_night_time, get_all_critical_hosts_info
 from utils.db.data_process import DataBaseOperations
-from utils.nagios import GetCriticalHostNagios
 from utils.log import logger
 
 
 async def monitoring():
     """Monitoring the network host"""
 
-    # Instantiate the Nagios parser
-    nagios_parser = GetCriticalHostNagios(
-        url=env.str("URL_NAGIOS"),
-        login=env.str("LOGIN_NAGIOS"),
-        passwd=env.str("PASSWD_NAGIOS"),
-    )
-
     # Get all critical hosts from Nagios
-    critical_hosts = await nagios_parser.get_all_critical_hosts()
+    critical_hosts = await get_all_critical_hosts_info()
 
     # Filter 'hosts' list based on timedelta condition,
     # and create a set of host names.

@@ -1,22 +1,9 @@
 from aiogram import types
 
 import const_texts as ct
-from loader import is_night_time, env
+from loader import is_night_time, get_all_critical_hosts_info
 from utils.keyboards import make_inline_keyboard
 from utils.log import logger
-from utils.nagios import GetCriticalHostNagios
-
-
-async def get_all_critical_hosts_info():
-    """Get information about all critical hosts."""
-
-    parser = GetCriticalHostNagios(
-        url=env.str("URL_NAGIOS"),
-        login=env.str("LOGIN_NAGIOS"),
-        passwd=env.str("PASSWD_NAGIOS"),
-    )
-
-    return await parser.get_all_critical_hosts()
 
 
 async def send_critical_hosts_message(message: types.Message):

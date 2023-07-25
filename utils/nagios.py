@@ -1,4 +1,3 @@
-import logging
 import re
 from datetime import timedelta
 
@@ -6,10 +5,7 @@ import aiohttp
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 
-logging.basicConfig(
-    format="%(filename)s [LINE:%(lineno)d] #%(levelname)-4s [%(asctime)s]  %(message)s",
-    level=logging.INFO,
-)
+from utils.log import logger
 
 
 class AuthorizedException(Exception):
@@ -41,7 +37,7 @@ class GetCriticalHostNagios:
         self.url = url
         self.login = login
         self.passwd = passwd
-        self.logger = logging.getLogger(__name__)
+        self.logger = logger
         self.headers = {
             "Content-Type": "text/html; charset=UTF-8",
             "User-Agent": UserAgent().random,

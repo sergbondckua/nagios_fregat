@@ -8,6 +8,8 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from environs import Env
 
+from utils.nagios import GetCriticalHostNagios
+
 # Read environment variables
 env = Env()
 env.read_env()
@@ -37,3 +39,15 @@ def is_night_time():
     end_night_time = time(7, 0)
 
     return start_night_time <= now or now <= end_night_time
+
+
+async def get_all_critical_hosts_info():
+    """Get information about all critical hosts."""
+
+    parser = GetCriticalHostNagios(
+        url=env.str("URL_NAGIOS"),
+        login=env.str("LOGIN_NAGIOS"),
+        passwd=env.str("PASSWD_NAGIOS"),
+    )
+
+    return await parser.get_all_critical_hosts()
