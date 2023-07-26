@@ -104,7 +104,8 @@ class GetCriticalHostNagios:
                 for host, downtime, ip in zip(
                     critical_hosts[::7],
                     critical_hosts[4::7],
-                    critical_hosts[6::7])
+                    critical_hosts[6::7],
+                )
             ]
 
             return critical_hosts_info
