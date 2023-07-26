@@ -1,3 +1,4 @@
+import asyncio
 import re
 from datetime import timedelta
 
@@ -69,7 +70,7 @@ class GetCriticalHostNagios:
 
         return await response.text()
 
-    async def get_all_critical_hosts(self) -> list[tuple[str, timedelta]]:
+    async def get_all_critical_hosts(self) -> list[tuple[str, timedelta, str]]:
         """Retrieves a list of critical hosts and their downtime from Nagios.
 
         Returns:
@@ -85,6 +86,7 @@ class GetCriticalHostNagios:
                     (
                         "Error: Nagios authorization failed",
                         timedelta(seconds=0),
+                        "0.0.0.0",
                     ),
                 ]
 
@@ -97,8 +99,12 @@ class GetCriticalHostNagios:
                 (
                     host.find("a").text.strip(),
                     await self.parse_timedelta(downtime.text.strip()),
+                    await self.parse_ip(ip.text.strip()),
                 )
-                for host, downtime in zip(critical_hosts[::7], critical_hosts[4::7])
+                for host, downtime, ip in zip(
+                    critical_hosts[::7],
+                    critical_hosts[4::7],
+                    critical_hosts[6::7])
             ]
 
             return critical_hosts_info
@@ -131,3 +137,20 @@ class GetCriticalHostNagios:
                 days=days, hours=hours, minutes=minutes, seconds=seconds)
 
         raise ValueError("Wrong time string format.")
+
+    @staticmethod
+    async def parse_ip(text: str) -> str:
+        """
+        Parse the IP address from the input string.
+
+        Parameters:
+            text (str): The input string to search for an IP address.
+
+        Returns:
+            str or None: The matched IP address if found, or None if no match is found.
+        """
+
+        pattern = r"\b(?:\d{1,3}\.){3}\d{1,3}\b"
+        match = re.search(pattern, text)
+
+        return match.group() if match else None
