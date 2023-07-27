@@ -11,7 +11,7 @@ async def send_critical_hosts_message(message: types.Message):
 
     if hosts := await get_all_critical_hosts_info():
         # Convert the list of changed hosts to a formatted string
-        hosts_str = "\n".join(ct.host_name_row % (i[0],) for i in hosts)
+        hosts_str = "\n".join(ct.host_name_row % (name,) for name, *_, in hosts)
 
         keyboard = await make_inline_keyboard(ct.btn_detail, "details")
 
