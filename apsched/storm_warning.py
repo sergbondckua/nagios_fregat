@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime
 
 import pygismeteo
@@ -49,7 +48,3 @@ async def notice_of_possible_thunderstorms() -> None:
         )
     else:
         logger.info("Thunderstorms are not expected")
-
-
-if __name__ == "__main__":
-    asyncio.run(notice_of_possible_thunderstorms())
