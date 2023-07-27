@@ -8,9 +8,9 @@ all_down_hosts = text(
 )
 host_detail_name_row = text(
     "🟥 • " + hbold("%s"),
-    "       |_ " + hcode("%s"),
-    "       |_ " + hcode("%s"),
-    sep="\n",
+    "|_ " + hcode("%s"),
+    "|_ " + hcode("%s"),
+    sep="\n\t\t\t\t\t\t\t",
 )
 host_name_row = text(
     "🟥 • %s",

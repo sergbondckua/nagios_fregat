@@ -1,11 +1,11 @@
 from aiogram import executor
 
 from apsched.check_hosts import monitoring
+from apsched.storm_warning import notice_of_possible_thunderstorms
 from handlers import start, helps, critical_hosts as ch
-from loader import dp, scheduler
+from loader import dp, scheduler, env
 from utils.db.data_process import DataBaseOperations
 from utils.set_bot_commands import set_default_commands
-
 
 # Register handlers for messages
 dp.register_message_handler(start.send_welcome, commands=["start"])
@@ -16,7 +16,7 @@ dp.register_callback_query_handler(
 )
 
 
-async def on_start(dispatcher):
+async def on_start(dispatcher) -> None:
     """Start services for bot"""
 
     # Set commands for bot
@@ -25,8 +25,18 @@ async def on_start(dispatcher):
     # Create table if it doesn't exist
     await DataBaseOperations().create_tables()
 
-    # Add tasks apscheduler
+    # Start schedule
+    await start_scheduler()
+
+
+async def start_scheduler() -> None:
+    """Start scheduler and add tasks apscheduler"""
+
     scheduler.add_job(monitoring, "interval", seconds=90)
+
+    if env.bool("IS_REPORT_STORM"):
+        scheduler.add_job(
+            notice_of_possible_thunderstorms, "interval", seconds=60)
 
     # Start the scheduler
     scheduler.start()
