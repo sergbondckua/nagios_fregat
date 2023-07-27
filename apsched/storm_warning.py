@@ -9,11 +9,11 @@ from utils.log import logger
 
 async def get_weather_forecast() -> list[tuple[str, str]]:
     """
-        Get the weather forecast for a specific location.
+    Get the weather forecast for a specific location.
 
-        Returns:
-            List of tuples, where each tuple contains the date
-            and the full weather description for that date.
+    Returns:
+        List of tuples, where each tuple contains the date
+        and the full weather description for that date.
     """
 
     gm = pygismeteo.Gismeteo(lang="ua")
@@ -21,7 +21,9 @@ async def get_weather_forecast() -> list[tuple[str, str]]:
 
     return [
         (
-            datetime.fromtimestamp(entry.date.unix).strftime("%d.%m.%Y"),
+            datetime.fromtimestamp(entry.date.unix, tz=env.str("TZ")).strftime(
+                "%d.%m.%Y"
+            ),
             entry.description.full,
         )
         for entry in forecast
@@ -31,8 +33,8 @@ async def get_weather_forecast() -> list[tuple[str, str]]:
 
 async def notice_of_possible_thunderstorms() -> None:
     """
-        Check the weather forecast and send a notification
-        in case of possible thunderstorms.
+    Check the weather forecast and send a notification
+    in case of possible thunderstorms.
     """
 
     weather_forecast = await get_weather_forecast()
