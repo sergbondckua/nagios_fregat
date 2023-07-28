@@ -1,9 +1,8 @@
 from aiogram import executor
 
-from apsched.check_hosts import monitoring
-from apsched.storm_warning import notice_of_possible_thunderstorms
+from apsched.jobs import start_scheduler
 from handlers import start, helps, critical_hosts as ch
-from loader import dp, scheduler, env
+from loader import dp
 from utils.db.data_process import DataBaseOperations
 from utils.set_bot_commands import set_default_commands
 
@@ -27,25 +26,6 @@ async def on_start(dispatcher) -> None:
 
     # Start schedule
     await start_scheduler()
-
-
-async def start_scheduler() -> None:
-    """Start scheduler and add tasks apscheduler"""
-
-    scheduler.add_job(monitoring, "interval", seconds=90)
-
-    if env.bool("IS_REPORT_STORM"):
-        scheduler.add_job(
-            func=notice_of_possible_thunderstorms,
-            trigger="cron",
-            minute=0,
-            hour=8,
-            month="3-11",
-            day_of_week="mon, wed, fri",
-        )
-
-    # Start the scheduler
-    scheduler.start()
 
 
 if __name__ == "__main__":

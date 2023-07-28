@@ -1,9 +1,9 @@
 from aiogram import types
 
 import const_texts as ct
-from loader import is_night_time, get_all_critical_hosts_info
 from utils.keyboards import make_inline_keyboard
 from utils.log import logger
+from utils.misc import get_all_critical_hosts_info, is_night_time
 
 
 async def send_critical_hosts_message(message: types.Message):

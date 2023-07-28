@@ -1,9 +1,10 @@
 from datetime import timedelta
 
 import const_texts as ct
-from loader import dp, env, is_night_time, get_all_critical_hosts_info
+from loader import dp, env
 from utils.db.data_process import DataBaseOperations
 from utils.log import logger
+from utils.misc import get_all_critical_hosts_info, is_night_time
 
 
 async def monitoring():

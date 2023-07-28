@@ -3,8 +3,9 @@ from datetime import datetime
 import pygismeteo
 
 import const_texts as ct
-from loader import dp, env, is_night_time
+from loader import dp, env
 from utils.log import logger
+from utils.misc import is_night_time
 
 
 async def get_weather_forecast() -> list[tuple[str, str]]:
