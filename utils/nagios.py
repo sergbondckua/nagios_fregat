@@ -1,4 +1,3 @@
-import asyncio
 import re
 from datetime import timedelta
 
@@ -135,7 +134,8 @@ class GetCriticalHostNagios:
             days, hours, minutes, seconds = [int(x) for x in match.groups()]
 
             return timedelta(
-                days=days, hours=hours, minutes=minutes, seconds=seconds)
+                days=days, hours=hours, minutes=minutes, seconds=seconds
+            )
 
         raise ValueError("Wrong time string format.")
 

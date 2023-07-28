@@ -34,7 +34,7 @@ async def monitoring():
         await dp.bot.send_message(
             chat_id=env.int("CHAT_SUPPORT_ID"),
             disable_notification=is_night_time(),
-            text=ct.changed_hosts_status % (changed_hosts_str,),
+            text=ct.changed_hosts_status.format(changed_hosts_str),
         )
     else:
         logger.info("The current status of the hosts has not changed")
