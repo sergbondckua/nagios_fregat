@@ -36,7 +36,13 @@ async def start_scheduler() -> None:
 
     if env.bool("IS_REPORT_STORM"):
         scheduler.add_job(
-            notice_of_possible_thunderstorms, "interval", seconds=60)
+            func=notice_of_possible_thunderstorms,
+            trigger="cron",
+            minute=0,
+            hour=8,
+            month="3-11",
+            day_of_week="mon, wed, fri",
+        )
 
     # Start the scheduler
     scheduler.start()

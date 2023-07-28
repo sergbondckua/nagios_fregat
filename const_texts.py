@@ -15,6 +15,17 @@ host_detail_name_row = text(
 host_name_row = text(
     "🟥 • %s",
 )
+storm_report = text(
+    hbold("🌩 Попередження про ймовірні грози."),
+    "%s",
+    text("----", hlink("Gismeteo", "https://meteofor.com.ua/"), sep="\n"),
+    sep="\n\n\t",
+)
+storm_data_row = text(
+    "• ",
+    hbold("%s:"),
+    "%s",
+)
 url_nagios = text(env.str("URL_NAGIOS") + "?host=all&servicestatustypes=16&limit=0")
 
 changed_hosts_status = text(
@@ -22,7 +33,7 @@ changed_hosts_status = text(
     "%s",
     text(
         "----",
-        f"👉 <a href='{url_nagios}'>Nagios</a> | /nagios",
+        hlink("Nagios", url_nagios) + " | /nagios",
         sep="\n",
     ),
     sep="\n\n",
@@ -38,7 +49,7 @@ start_text = text(
     "в чат/канал також отримаєте повідомлення, якщо хост повернеться до нормального стану.",
     "Залишайтесь на зв'язку і нехай ваші хости завжди будуть під контролем!",
     "Приємного користування та успіхів у моніторингу ваших хостів! 🚀",
-    sep="\n\n",
+    sep="\n\n\t",
 )
 help_text = text(
     hbold("Функціонал:"),
