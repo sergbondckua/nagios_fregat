@@ -40,12 +40,17 @@ async def get_all_critical_hosts_info():
 async def send_message_with_retry(
     message: types.Message | Dispatcher,
     text: str,
-    keyboard=None,
-    chat_id: int = None,
+    chat_id: int | None = None,
+    keyboard: types.InlineKeyboardMarkup | None = None,
 ):
     """
     Send the message, and if it's too long,
     split and send as separate messages.
+
+    :param message: The message object that triggered the function.
+    :param text: The text of the message to be sent.
+    :param keyboard: (Optional) The inline keyboard to be sent with the message.
+    :param chat_id: (Optional) The ID of the chat to send the message to.
     """
 
     try:
@@ -55,7 +60,6 @@ async def send_message_with_retry(
                 text=text,
                 disable_notification=is_night_time(),
                 reply_markup=keyboard,
-
             )
         else:
             await message.answer(
@@ -69,10 +73,17 @@ async def send_message_with_retry(
 
         # Sending each part as a separate message
         for part in parts:
-            await message.answer(
-                text=part,
-                disable_notification=is_night_time(),
-            )
+            if chat_id:
+                await message.bot.send_message(
+                    chat_id=chat_id,
+                    text=part,
+                    disable_notification=is_night_time(),
+                )
+            else:
+                await message.answer(
+                    text=part,
+                    disable_notification=is_night_time(),
+                )
 
         logger.info(
             "Extra long message (%s) was split into %s messages.",

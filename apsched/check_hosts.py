@@ -37,8 +37,8 @@ async def monitoring():
 
         await send_message_with_retry(
             message=dp,
-            chat_id=env.int("CHAT_SUPPORT_ID"),
             text=ct.changed_hosts_status.format(changed_hosts_str),
+            chat_id=env.int("CHAT_SUPPORT_ID"),
         )
     else:
         logger.info("The current status of the hosts has not changed")

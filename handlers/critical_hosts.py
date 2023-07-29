@@ -30,10 +30,7 @@ async def send_critical_hosts_message(message: types.Message):
             message.chat.id,
         )
     else:
-        await send_message_with_retry(
-            message,
-            text=ct.all_ok,
-        )
+        await send_message_with_retry(message, text=ct.all_ok)
         logger.warning("No critical hosts found. Data is empty.")
 
 
@@ -52,8 +49,7 @@ async def send_detailed_critical_hosts_message(call: types.CallbackQuery):
         )
 
         await send_message_with_retry(
-            call.message,
-            text=ct.all_down_hosts.format(len(hosts), hosts_str),
+            call.message, text=ct.all_down_hosts.format(len(hosts), hosts_str)
         )
 
         logger.info(
