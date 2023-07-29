@@ -7,7 +7,7 @@ all_down_hosts = text(
     sep="\n\n",
 )
 host_detail_name_row = text(
-    "🟥 • " + hbold("{}"),
+    "🔻 • " + hbold("{}"),
     "|_ " + hcode("{}"),
     "|_ " + hcode("{}"),
     sep="\n\t\t\t\t\t\t\t",
@@ -82,5 +82,5 @@ help_text = text(
     ),
     sep="\n\n",
 )
-btn_detail = "ℹ️ Докладно"
+btn_detail = "🗂 Докладно"
 all_ok = text("Все добре! Не знайдено проблем")
