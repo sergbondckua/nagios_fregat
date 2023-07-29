@@ -4,7 +4,10 @@ import const_texts as ct
 from loader import dp, env
 from utils.db.data_process import DataBaseOperations
 from utils.log import logger
-from utils.misc import get_all_critical_hosts_info, is_night_time
+from utils.misc import (
+    get_all_critical_hosts_info,
+    send_message_with_retry,
+)
 
 
 async def monitoring():
@@ -32,9 +35,9 @@ async def monitoring():
         # Convert the list of changed hosts to a formatted string
         changed_hosts_str = "\n".join(changed_hosts)
 
-        await dp.bot.send_message(
+        await send_message_with_retry(
+            message=dp,
             chat_id=env.int("CHAT_SUPPORT_ID"),
-            disable_notification=is_night_time(),
             text=ct.changed_hosts_status.format(changed_hosts_str),
         )
     else:

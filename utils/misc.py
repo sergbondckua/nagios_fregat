@@ -1,8 +1,12 @@
+from __future__ import annotations
 from datetime import datetime, time
 
+from aiogram import types, Dispatcher
+from aiogram.utils.exceptions import MessageIsTooLong
 from pytz import timezone
 
 from loader import env
+from utils.log import logger
 from utils.nagios import GetCriticalHostNagios
 
 
@@ -31,3 +35,47 @@ async def get_all_critical_hosts_info():
     )
 
     return await parser.get_all_critical_hosts()
+
+
+async def send_message_with_retry(
+    message: types.Message | Dispatcher,
+    text: str,
+    keyboard=None,
+    chat_id: int = None,
+):
+    """
+    Send the message, and if it's too long,
+    split and send as separate messages.
+    """
+
+    try:
+        if chat_id:
+            await message.bot.send_message(
+                chat_id=chat_id,
+                text=text,
+                disable_notification=is_night_time(),
+                reply_markup=keyboard,
+
+            )
+        else:
+            await message.answer(
+                text=text,
+                disable_notification=is_night_time(),
+                reply_markup=keyboard,
+            )
+    except MessageIsTooLong:
+        # Extra long message > 4096 characters
+        parts = [text[i:i + 4096] for i in range(0, len(text), 4096)]
+
+        # Sending each part as a separate message
+        for part in parts:
+            await message.answer(
+                text=part,
+                disable_notification=is_night_time(),
+            )
+
+        logger.info(
+            "Extra long message (%s) was split into %s messages.",
+            len(text),
+            len(parts),
+        )
