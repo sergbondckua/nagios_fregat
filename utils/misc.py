@@ -6,6 +6,7 @@ from aiogram.utils.exceptions import MessageIsTooLong
 from pytz import timezone
 
 from loader import env
+from utils.billing import BillingUserData
 from utils.log import logger
 from utils.nagios import GetCriticalHostNagios
 
@@ -35,6 +36,15 @@ async def get_all_critical_hosts_info():
     )
 
     return await parser.get_all_critical_hosts()
+
+
+async def billing() -> BillingUserData:
+    bill = BillingUserData(
+        url=env.str("URL_BILLING"),
+        login=env.str("LOGIN_BILLING"),
+        passwd=env.str("PASSWD_BILLING"),
+    )
+    return bill
 
 
 async def send_message_with_retry(

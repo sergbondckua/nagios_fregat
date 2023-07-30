@@ -103,6 +103,7 @@ class BillingUserData:
 
         Args:
             url_profile (str): The URL to fetch the seance user data from.
+            rows (str): Slice list
 
         Returns:
             list[dict[str, str]]: A list of dictionaries containing seance user information.
@@ -136,6 +137,43 @@ class BillingUserData:
 
         return seance
 
+    async def get_balance_user(self, url_profile: str) -> dict[str, str]:
+        """
+            Retrieve user balance and related information.
+
+        Args:
+            url_profile (str): The URL of the user's profile.
+
+        Returns:
+            dict[str, str]: A dictionary containing user data with the following keys:
+                - "Користувач": The name of the user.
+                - "ППК": The user's account number.
+                - "Зняття за період": Withdrawal amount for the period.
+                - "Баланс": The current balance of the user.
+
+        Note:
+            This function requires the BeautifulSoup library to parse the HTML content.
+            The `fetch_data` function should be implemented in the class to retrieve the HTML content
+            from the specified URL asynchronously.
+        """
+
+        params = {}
+        html = await self.fetch_data(url_profile, params)
+        soup = BeautifulSoup(html, "lxml")
+
+        # Initialize an empty dictionary
+        user_data = {}
+        # Get all content elements within the div with class 'data_small'
+        contents = soup.find("div", class_="data_small").contents
+
+        # Extract relevant information and store in the dictionary
+        user_data["Користувач"] = contents[0].text.split(": ")[1]
+        user_data["ППК"] = contents[2].text.split(": ")[1]
+        user_data["Зняття за період"] = contents[4].text.split(": ")[1]
+        user_data["Баланс"] = contents[6].text.split(": ")[1]
+
+        return user_data
+
     async def close_session(self) -> None:
         """Close the ClientSession if it is active."""
 
@@ -152,8 +190,9 @@ async def main():
     link = await bill.get_profile_link("chk_ninja")
     blank = await bill.get_credentials_user(link)
     seance = await bill.get_seance_user(link)
+    balance = await bill.get_balance_user(link)
     await bill.close_session()
-    print(blank, seance, sep="\n")
+    print(balance, sep="\n")
 
 
 if __name__ == "__main__":
