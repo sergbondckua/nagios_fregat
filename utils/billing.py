@@ -8,7 +8,7 @@ from loader import env
 
 
 class BillingUserData:
-    """Pass"""
+    """Represents user data for billing."""
 
     def __init__(self, url, login: str, passwd: str) -> None:
         """
@@ -21,7 +21,7 @@ class BillingUserData:
         """
         self.url = url
         self.timeout = ClientTimeout(total=10)
-        self.connector = TCPConnector(limit_per_host=10)
+        self.connector = TCPConnector(ssl=False, limit_per_host=10)
         self.headers = {"User-Agent": UserAgent().chrome}
         self.data = {"enter": "do", "uu": login, "pp": passwd}
         self.session = None
@@ -107,15 +107,15 @@ class BillingUserData:
 
         Returns:
             list[dict[str, str]]: A list of dictionaries containing seance user information.
-                                  Each dictionary represents one row of the data with the following keys:
-                                  - 'start': Start time of the seance.
-                                  - 'end': End time of the seance.
-                                  - 'ip': IP address of the user.
-                                  - 'nas': NAS (Network Access Server) information.
-                                  - 'mac': MAC (Media Access Control) address of the user.
-                                  - 'reason': Reason for the seance.
-                                  - 'vlan': VLAN (Virtual LAN) information.
-                                  - 'port': Port number associated with the seance.
+                Each dictionary represents one row of the data with the following keys:
+                - 'start': Start time of the seance.
+                - 'end': End time of the seance.
+                - 'ip': IP address of the user.
+                - 'nas': NAS (Network Access Server) information.
+                - 'mac': MAC (Media Access Control) address of the user.
+                - 'reason': Reason for the seance.
+                - 'vlan': VLAN (Virtual LAN) information.
+                - 'port': Port number associated with the seance.
         """
         params = {"act": "seance"}
         html = await self.fetch_data(url_profile, params)
@@ -150,11 +150,6 @@ class BillingUserData:
                 - "ППК": The user's account number.
                 - "Зняття за період": Withdrawal amount for the period.
                 - "Баланс": The current balance of the user.
-
-        Note:
-            This function requires the BeautifulSoup library to parse the HTML content.
-            The `fetch_data` function should be implemented in the class to retrieve the HTML content
-            from the specified URL asynchronously.
         """
 
         params = {}
