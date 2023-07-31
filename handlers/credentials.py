@@ -5,9 +5,10 @@ from aiogram import types
 import const_texts as ct
 from utils.keyboards import make_inline_keyboard
 from utils.log import logger
-from utils.misc import billing
+from utils.misc import billing, require_group_membership
 
 
+@require_group_membership()
 async def send_user_credentials(message: types.Message):
     """Send user_login credentials with inline keyboard options."""
 
@@ -16,20 +17,28 @@ async def send_user_credentials(message: types.Message):
     try:
         await bill.get_profile_link(user_login)
     except asyncio.TimeoutError:
-        await message.answer("Помилка очікування!")
+        logger.error(
+            "Timeout error while sending user_login credentials to %s",
+            user_login,
+        )
+        await message.answer("Помилка очікування!")  # TODO: const text
         return
     except ValueError:
-        await message.answer("Користувача з таким логіном не знайдено.")
+        logger.warning("User %s not found.", user_login)
+        await message.answer(
+            f"Абонента з логіном ({user_login}) не знайдено."
+        )  # TODO: const text
         return
     finally:
         await bill.close_session()
 
+    # TODO: const text
     keyboard = await make_inline_keyboard(
-        "Сеанси",
-        f"seance__{user_login}",
+        "Сесії",
+        f"session__{user_login}",
         "Баланс",
         f"balance__{user_login}",
-        "Налаштування",
+        "Бланк налаштувань",
         f"blank__{user_login}",
         "Закрити",
         "close",
@@ -38,6 +47,7 @@ async def send_user_credentials(message: types.Message):
 
     msg = user_login
     await message.answer(msg, reply_markup=keyboard)
+    logger.info("%s profile has been accessed", user_login)
 
 
 async def send_blank(call: types.CallbackQuery):
@@ -46,10 +56,10 @@ async def send_blank(call: types.CallbackQuery):
     await _send_user_info(call, _get_blank_msg)
 
 
-async def send_seance(call: types.CallbackQuery):
+async def send_session(call: types.CallbackQuery):
     """Send user session information."""
 
-    await _send_user_info(call, _get_seance_msg)
+    await _send_user_info(call, _get_session_msg)
 
 
 async def send_balance(call: types.CallbackQuery):
@@ -78,6 +88,7 @@ async def _send_user_info(call: types.CallbackQuery, get_msg_func):
 
 
 async def _get_blank_msg(bill, link):
+    # TODO: const text
     blank = await bill.get_credentials_user(link)
     msg = "\n".join(
         f"{key}: <code>{value}</code>" for key, value in blank.items()
@@ -85,10 +96,11 @@ async def _get_blank_msg(bill, link):
     return msg
 
 
-async def _get_seance_msg(bill, link):
-    seance = await bill.get_seance_user(link)
-    msg = "\n\n".join(f"<pre>{x}</pre>" for x in seance)
-    return msg
+async def _get_session_msg(bill, link):
+    # TODO: const text
+    session = await bill.get_session_user(link)
+    msg = "\n\n".join(f"<pre>{x}</pre>" for x in session)
+    return msg if msg else "За 3 останні місяці сесій не знайдено."
 
 
 async def _get_balance_msg(bill, link):

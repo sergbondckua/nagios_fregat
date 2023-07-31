@@ -1,14 +1,45 @@
 from __future__ import annotations
+
 from datetime import datetime, time
+from functools import wraps
 
 from aiogram import types, Dispatcher
 from aiogram.utils.exceptions import MessageIsTooLong
 from pytz import timezone
 
-from loader import env
+from loader import env, dp, bot
 from utils.billing import BillingUserData
 from utils.log import logger
 from utils.nagios import GetCriticalHostNagios
+
+
+async def is_user_member(chat_id, user_id):
+    try:
+        member = await bot.get_chat_member(chat_id, user_id)
+        return member.is_chat_member()
+    except Exception:  # noqa pylint: disable=broad-except
+        return False
+
+
+def require_group_membership(group_id: int = env.int("CHAT_SUPPORT_ID")):
+    def decorator(func):
+        @wraps(func)
+        async def wrapped(message: types.Message, *args, **kwargs):
+            user_id = message.from_user.id
+
+            if await is_user_member(group_id, user_id):
+                return await func(message, *args, **kwargs)
+            # TODO: const text
+            logger.info(
+                "Access is denied. User %s is not a member of group %s",
+                user_id,
+                group_id,
+            )
+            await message.answer("You are not a member of the required group.")
+
+        return wrapped
+
+    return decorator
 
 
 def is_night_time():
@@ -79,7 +110,7 @@ async def send_message_with_retry(
             )
     except MessageIsTooLong:
         # Extra long message > 4096 characters
-        parts = [text[i:i + 4096] for i in range(0, len(text), 4096)]
+        parts = [text[i : i + 4096] for i in range(0, len(text), 4096)]
 
         # Sending each part as a separate message
         for part in parts:

@@ -5,7 +5,7 @@ from handlers import start, helps
 from handlers.credentials import (
     send_user_credentials,
     send_blank,
-    send_seance,
+    send_session,
     send_balance,
     close,
 )
@@ -23,7 +23,7 @@ dp.register_message_handler(helps.send_help, commands=["help"])
 dp.register_message_handler(send_critical_hosts_message, commands=["nagios"])
 dp.register_message_handler(send_user_credentials, commands=["abon"])
 dp.register_callback_query_handler(send_blank, text_contains="blank")
-dp.register_callback_query_handler(send_seance, text_contains="seance")
+dp.register_callback_query_handler(send_session, text_contains="session")
 dp.register_callback_query_handler(send_balance, text_contains="balance")
 dp.register_callback_query_handler(close, text_contains="close")
 dp.register_callback_query_handler(

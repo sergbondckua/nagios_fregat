@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 
 from loader import env
+from utils.log import logger
 
 
 class BillingUserData:
@@ -67,6 +68,8 @@ class BillingUserData:
             rows = soup.find("table", {"class": "zebra"}).find_all("tr")[2:]
             link_user = self.url + rows[0].find("a").get("href")
             url_profile = f"{link_user}&username={user}"
+            logger.info("Profile URL: %s", url_profile)
+
             return url_profile
         except AttributeError as exp:
             # If 'soup.find' or any attribute extraction fails, it means the user doesn't exist.
@@ -98,28 +101,28 @@ class BillingUserData:
 
         return credentials
 
-    async def get_seance_user(
+    async def get_session_user(
         self, url_profile: str, rows: int = 10
     ) -> list[dict]:
         """
-        Fetches seance user data from a given URL.
+        Fetches session user data from a given URL.
 
         Args:
-            url_profile (str): The URL to fetch the seance user data from.
+            url_profile (str): The URL to fetch the session user data from.
             rows (str): Slice list
 
         Returns:
-            list[dict[str, str]]: A list of dictionaries containing seance user information.
+            list[dict[str, str]]: A list of dictionaries containing session user information.
                 Each dictionary represents one row of the data with the following keys:
-                - 'start': Start time of the seance.
-                - 'end': End time of the seance.
+                - 'start': Start time of the session.
+                - 'end': End time of the session.
                 - 'ip': IP address of the user.
                 - 'nas': NAS (Network Access Server) information.
                 - 'mac': MAC (Media Access Control) address of the user.
-                - 'reason': Reason for the seance.
+                - 'reason': Reason for the session.
                 - 'vlan': VLAN (Virtual LAN) information.
-                - 'port': Port number associated with the seance.
-        """
+                - 'port': Port number associated with the session."""
+
         params = {"act": "seance"}
         html = await self.fetch_data(url_profile, params)
         soup = BeautifulSoup(html, "lxml")
@@ -187,7 +190,7 @@ async def main():
     )
     link = await bill.get_profile_link("chk_ninja")
     blank = await bill.get_credentials_user(link)
-    seance = await bill.get_seance_user(link)
+    session = await bill.get_session_user(link)
     balance = await bill.get_balance_user(link)
     await bill.close_session()
     print(balance, sep="\n")
