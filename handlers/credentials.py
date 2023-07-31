@@ -9,29 +9,34 @@ from utils.misc import billing
 
 
 async def send_user_credentials(message: types.Message):
-    """Send user credentials with inline keyboard options."""
+    """Send user_login credentials with inline keyboard options."""
 
-    user = message.get_args().strip()
+    user_login = message.get_args().strip()
     bill = await billing()
     try:
-        await bill.get_profile_link(user)
+        await bill.get_profile_link(user_login)
     except asyncio.TimeoutError:
         await message.answer("Помилка очікування!")
+        return
+    except ValueError:
+        await message.answer("Користувача з таким логіном не знайдено.")
         return
     finally:
         await bill.close_session()
 
     keyboard = await make_inline_keyboard(
         "Сеанси",
-        f"seance__{user}",
+        f"seance__{user_login}",
         "Баланс",
-        f"balance__{user}",
-        "Бланк налаштувань",
-        f"blank__{user}",
-        row_width=2,
+        f"balance__{user_login}",
+        "Налаштування",
+        f"blank__{user_login}",
+        "Закрити",
+        "close",
+        row_width=3,
     )
 
-    msg = user
+    msg = user_login
     await message.answer(msg, reply_markup=keyboard)
 
 
@@ -51,6 +56,12 @@ async def send_balance(call: types.CallbackQuery):
     """Send user balance information."""
 
     await _send_user_info(call, _get_balance_msg)
+
+
+async def close(call: types.CallbackQuery):
+    """ "Send user close information."""
+
+    await call.message.delete()
 
 
 async def _send_user_info(call: types.CallbackQuery, get_msg_func):

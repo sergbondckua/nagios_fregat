@@ -36,7 +36,7 @@ async def send_critical_hosts_message(message: types.Message):
 
 async def send_detailed_critical_hosts_message(call: types.CallbackQuery):
     """Sends all the details of all hosts that are down."""
-    await call.message.edit_reply_markup()
+
     await call.message.delete()
 
     hosts = await get_all_critical_hosts_info()

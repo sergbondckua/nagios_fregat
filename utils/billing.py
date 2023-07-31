@@ -62,12 +62,15 @@ class BillingUserData:
         params = {"a": "listuser", "id": "", "name": user}
         html = await self.fetch_data(url, params)
 
-        soup = BeautifulSoup(html, "lxml")
-        rows = soup.find("table", {"class": "zebra"}).find_all("tr")[2:]
-        link_user = self.url + rows[0].find("a").get("href")
-        url_profile = f"{link_user}&username={user}"
-
-        return url_profile
+        try:
+            soup = BeautifulSoup(html, "lxml")
+            rows = soup.find("table", {"class": "zebra"}).find_all("tr")[2:]
+            link_user = self.url + rows[0].find("a").get("href")
+            url_profile = f"{link_user}&username={user}"
+            return url_profile
+        except AttributeError as exp:
+            # If 'soup.find' or any attribute extraction fails, it means the user doesn't exist.
+            raise ValueError(f"The user '{user}' does not exist.") from exp
 
     async def get_credentials_user(self, url_profile: str) -> dict[str, str]:
         """

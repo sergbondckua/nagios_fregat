@@ -7,6 +7,7 @@ from handlers.credentials import (
     send_blank,
     send_seance,
     send_balance,
+    close,
 )
 from handlers.critical_hosts import (
     send_critical_hosts_message,
@@ -24,6 +25,7 @@ dp.register_message_handler(send_user_credentials, commands=["abon"])
 dp.register_callback_query_handler(send_blank, text_contains="blank")
 dp.register_callback_query_handler(send_seance, text_contains="seance")
 dp.register_callback_query_handler(send_balance, text_contains="balance")
+dp.register_callback_query_handler(close, text_contains="close")
 dp.register_callback_query_handler(
     send_detailed_critical_hosts_message, text_contains="details"
 )
