@@ -102,7 +102,7 @@ class BillingUserData:
         return credentials
 
     async def get_session_user(
-        self, url_profile: str, rows: int = 10
+        self, url_profile: str, rows: int = 11
     ) -> list[dict]:
         """
         Fetches session user data from a given URL.
@@ -126,9 +126,8 @@ class BillingUserData:
         params = {"act": "seance"}
         html = await self.fetch_data(url_profile, params)
         soup = BeautifulSoup(html, "lxml")
-        rows = soup.find("table", {"class": "zebra-small"}).find_all("tr")[
-            1:rows
-        ]
+        rows = soup.find(
+            "table", {"class": "zebra-small"}).find_all("tr")[1:rows]
 
         title = ["start", "end", "ip", "nas", "mac", "reason", "vlan", "port"]
 

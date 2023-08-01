@@ -7,6 +7,7 @@ from aiogram import types, Dispatcher
 from aiogram.utils.exceptions import MessageIsTooLong
 from pytz import timezone
 
+import const_texts as ct
 from loader import env, dp, bot
 from utils.billing import BillingUserData
 from utils.log import logger
@@ -29,13 +30,14 @@ def require_group_membership(group_id: int = env.int("CHAT_SUPPORT_ID")):
 
             if await is_user_member(group_id, user_id):
                 return await func(message, *args, **kwargs)
-            # TODO: const text
             logger.info(
                 "Access is denied. User %s is not a member of group %s",
                 user_id,
                 group_id,
             )
-            await message.answer("You are not a member of the required group.")
+            await message.answer(
+                ct.require_group_member_text.format(message.from_user.full_name)
+            )
 
         return wrapped
 
