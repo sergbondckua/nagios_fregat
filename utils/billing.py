@@ -1,10 +1,7 @@
-import asyncio
-
 from aiohttp import ClientSession, ClientTimeout, TCPConnector
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 
-from loader import env
 from utils.log import logger
 
 
@@ -26,6 +23,19 @@ class BillingUserData:
         self.headers = {"User-Agent": UserAgent().chrome}
         self.data = {"enter": "do", "uu": login, "pp": passwd}
         self.session = None
+
+    async def __aenter__(self):
+        """Async context manager entry point."""
+
+        self.session = ClientSession(
+            timeout=self.timeout, connector=self.connector, headers=self.headers
+        )
+        return self
+
+    async def __aexit__(self, exc_type, exc_value, traceback):
+        """Async context manager exit point."""
+
+        await self.session.close()
 
     async def fetch_data(self, url: str, params: dict[str, str]) -> str:
         """
@@ -62,18 +72,19 @@ class BillingUserData:
         url = f"{self.url}/cgi-bin/adm/adm.pl"
         params = {"a": "listuser", "id": "", "name": user}
         html = await self.fetch_data(url, params)
+        soup = BeautifulSoup(html, "lxml")
 
         try:
-            soup = BeautifulSoup(html, "lxml")
             rows = soup.find("table", {"class": "zebra"}).find_all("tr")[2:]
-            link_user = self.url + rows[0].find("a").get("href")
-            url_profile = f"{link_user}&username={user}"
-            logger.info("Profile URL: %s", url_profile)
-
-            return url_profile
         except AttributeError as exp:
             # If 'soup.find' or any attribute extraction fails, it means the user doesn't exist.
             raise ValueError(f"The user '{user}' does not exist.") from exp
+
+        link_user = self.url + rows[0].find("a").get("href")
+        url_profile = f"{link_user}&username={user}"
+        logger.info("Profile URL: %s", url_profile)
+
+        return url_profile
 
     async def get_credentials_user(self, url_profile: str) -> dict[str, str]:
         """
@@ -97,7 +108,6 @@ class BillingUserData:
                 key = cells[0].get_text(strip=True)
                 value = cells[1].get_text(strip=True)
                 credentials[key] = value
-        # await self.close_session()
 
         return credentials
 
@@ -126,8 +136,9 @@ class BillingUserData:
         params = {"act": "seance"}
         html = await self.fetch_data(url_profile, params)
         soup = BeautifulSoup(html, "lxml")
-        rows = soup.find(
-            "table", {"class": "zebra-small"}).find_all("tr")[1:rows]
+        rows = soup.find("table", {"class": "zebra-small"}).find_all("tr")[
+            1:rows
+        ]
 
         title = ["start", "end", "ip", "nas", "mac", "reason", "vlan", "port"]
 

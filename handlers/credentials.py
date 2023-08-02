@@ -4,6 +4,7 @@ from datetime import datetime
 from aiogram import types
 
 import const_texts as ct
+from utils.billing import BillingUserData
 from utils.keyboards import make_inline_keyboard
 from utils.log import logger
 from utils.misc import billing, require_group_membership
@@ -79,16 +80,15 @@ async def _send_user_info(call: types.CallbackQuery, get_msg_func):
     await call.message.answer_chat_action(action=types.ChatActions.TYPING)
     
     user = call.data.split("__")[1]
-    bill = await billing()
-    link = await bill.get_profile_link(user)
-    info = await get_msg_func(bill, link)
+    async with await billing() as bill:
+        link = await bill.get_profile_link(user)
+        info = await get_msg_func(bill, link)
     keyboard = await make_inline_keyboard(ct.btn_close, "close")
-    
-    await bill.close_session()
+
     await call.message.answer(info, reply_markup=keyboard)
 
 
-async def _get_blank_msg(bill: billing, link: str) -> str:
+async def _get_blank_msg(bill: BillingUserData, link: str) -> str:
     """Get the user's account message."""
 
     blank = await bill.get_credentials_user(link)
@@ -99,7 +99,7 @@ async def _get_blank_msg(bill: billing, link: str) -> str:
     return msg
 
 
-async def _get_session_msg(bill: billing, link: str) -> str:
+async def _get_session_msg(bill: BillingUserData, link: str) -> str:
     """Get the user's sessions message."""
 
     sessions = await bill.get_session_user(link)
@@ -137,7 +137,7 @@ async def _get_session_msg(bill: billing, link: str) -> str:
     return msg if msg else ct.not_found_session
 
 
-async def _get_balance_msg(bill: billing, link: str) -> str:
+async def _get_balance_msg(bill: BillingUserData, link: str) -> str:
     balance = await bill.get_balance_user(link)
     msg = "\n".join(f"{key}: {value}" for key, value in balance.items())
     return msg
