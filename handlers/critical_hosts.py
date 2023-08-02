@@ -8,6 +8,8 @@ from utils.misc import get_all_critical_hosts_info, send_message_with_retry
 
 async def send_critical_hosts_message(message: types.Message):
     """Sends a notification with all critical hosts"""
+
+    await message.answer_chat_action(action=types.ChatActions.TYPING)
     hosts = await get_all_critical_hosts_info()
 
     if hosts:
@@ -16,7 +18,13 @@ async def send_critical_hosts_message(message: types.Message):
             ct.host_name_row.format(name) for name, *_ in hosts
         )
 
-        keyboard = await make_inline_keyboard(ct.btn_detail, "details")
+        keyboard = await make_inline_keyboard(
+            ct.btn_detail,
+            "details",
+            ct.btn_close,
+            "close",
+            row_width=2,
+        )
 
         await send_message_with_retry(
             message,
@@ -39,7 +47,9 @@ async def send_detailed_critical_hosts_message(call: types.CallbackQuery):
 
     await call.message.delete()
 
+    await call.message.answer_chat_action(action=types.ChatActions.TYPING)
     hosts = await get_all_critical_hosts_info()
+    keyboard = await make_inline_keyboard(ct.btn_close, "close")
 
     if hosts:
         # Convert the list of changed hosts to a formatted string
@@ -49,7 +59,9 @@ async def send_detailed_critical_hosts_message(call: types.CallbackQuery):
         )
 
         await send_message_with_retry(
-            call.message, text=ct.all_down_hosts.format(len(hosts), hosts_str)
+            call.message,
+            text=ct.all_down_hosts.format(len(hosts), hosts_str),
+            keyboard=keyboard,
         )
 
         logger.info(

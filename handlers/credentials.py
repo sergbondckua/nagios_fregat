@@ -13,6 +13,7 @@ from utils.misc import billing, require_group_membership
 async def send_user_credentials(message: types.Message):
     """Send user_login credentials with inline keyboard options."""
 
+    await message.answer_chat_action(action=types.ChatActions.TYPING)
     user_login = message.get_args().strip()
     bill = await billing()
     try:
@@ -75,13 +76,13 @@ async def close(call: types.CallbackQuery):
 async def _send_user_info(call: types.CallbackQuery, get_msg_func):
     """Send user information using a callback query."""
 
+    await call.message.answer_chat_action(action=types.ChatActions.TYPING)
     user = call.data.split("__")[1]
     bill = await billing()
     link = await bill.get_profile_link(user)
     info = await get_msg_func(bill, link)
     keyboard = await make_inline_keyboard(ct.btn_close, "close")
     await bill.close_session()
-    await call.message.answer_chat_action(action=types.ChatActions.TYPING)
     await call.message.answer(info, reply_markup=keyboard)
 
 
