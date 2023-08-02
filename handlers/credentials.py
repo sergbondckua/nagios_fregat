@@ -14,25 +14,30 @@ from utils.misc import billing, require_group_membership
 async def send_user_credentials(message: types.Message):
     """Send user_login credentials with inline keyboard options."""
 
+    # Check whether the command was sent with the user's login
+    if not message.get_args():
+        await message.answer(ct.correct_abon_command)
+        return
+
     await message.answer_chat_action(action=types.ChatActions.TYPING)
     user_login = message.get_args().strip()
-    bill = await billing()
-    try:
-        link = await bill.get_profile_link(user_login)
-    except asyncio.TimeoutError:
-        logger.error(
-            "Timeout error while sending user_login credentials to %s",
-            user_login,
-        )
-        await message.answer(ct.timeout_error)
-        return
-    except ValueError:
-        logger.warning("User %s not found.", user_login)
-        await message.answer(ct.user_not_found.format(user_login))
-        return
-    finally:
-        await bill.close_session()
 
+    async with await billing() as bill:
+        try:
+            link = await bill.get_profile_link(user_login)
+        except asyncio.TimeoutError:
+            logger.error(
+                "Timeout error while sending user_login credentials to %s",
+                user_login,
+            )
+            await message.answer(ct.timeout_error)
+            return
+        except ValueError:
+            logger.warning("User %s not found.", user_login)
+            await message.answer(ct.user_not_found.format(user_login))
+            return
+
+    msg = ct.selected_user_text.format(title=user_login, url=link)
     keyboard = await make_inline_keyboard(
         ct.btn_sessions,
         f"session__{user_login}",
@@ -45,7 +50,6 @@ async def send_user_credentials(message: types.Message):
         row_width=3,
     )
 
-    msg = ct.selected_user_text.format(title=user_login, url=link)
     await message.answer(msg, reply_markup=keyboard)
     logger.info("%s profile has been accessed", user_login)
 
