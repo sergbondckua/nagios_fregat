@@ -22,6 +22,8 @@ dp.register_message_handler(start.send_welcome, commands=["start"])
 dp.register_message_handler(helps.send_help, commands=["help"])
 dp.register_message_handler(send_critical_hosts_message, commands=["nagios"])
 dp.register_message_handler(send_user_credentials, commands=["abon"])
+
+# Register callback handlers
 dp.register_callback_query_handler(send_blank, text_contains="blank")
 dp.register_callback_query_handler(send_session, text_contains="session")
 dp.register_callback_query_handler(send_balance, text_contains="balance")
