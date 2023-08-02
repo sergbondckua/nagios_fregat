@@ -179,21 +179,3 @@ class BillingUserData:
 
         if self.session:
             await self.session.close()
-
-
-async def main():
-    bill = BillingUserData(
-        url=env.str("URL_BILLING"),
-        login=env.str("LOGIN_BILLING"),
-        passwd=env.str("PASSWD_BILLING"),
-    )
-    link = await bill.get_profile_link("chk_ninja")
-    blank = await bill.get_credentials_user(link)
-    session = await bill.get_session_user(link)
-    balance = await bill.get_balance_user(link)
-    await bill.close_session()
-    print(balance, sep="\n")
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
