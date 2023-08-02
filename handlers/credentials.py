@@ -77,11 +77,13 @@ async def _send_user_info(call: types.CallbackQuery, get_msg_func):
     """Send user information using a callback query."""
 
     await call.message.answer_chat_action(action=types.ChatActions.TYPING)
+    
     user = call.data.split("__")[1]
     bill = await billing()
     link = await bill.get_profile_link(user)
     info = await get_msg_func(bill, link)
     keyboard = await make_inline_keyboard(ct.btn_close, "close")
+    
     await bill.close_session()
     await call.message.answer(info, reply_markup=keyboard)
 
