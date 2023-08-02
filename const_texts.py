@@ -88,7 +88,7 @@ help_text = text(
     ),
     text(
         hbold(margin + "/abon chk_example"),
-        hitalic("- Отримати меню біллінг-сервісів абонента."),
+        hitalic("- Отримати меню білінг-сервісів абонента."),
     ),
     sep="\n\n",
 )
