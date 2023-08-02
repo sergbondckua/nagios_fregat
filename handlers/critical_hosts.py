@@ -46,8 +46,8 @@ async def send_detailed_critical_hosts_message(call: types.CallbackQuery):
     """Sends all the details of all hosts that are down."""
 
     await call.message.delete()
-
     await call.message.answer_chat_action(action=types.ChatActions.TYPING)
+    
     hosts = await get_all_critical_hosts_info()
     keyboard = await make_inline_keyboard(ct.btn_close, "close")
 
