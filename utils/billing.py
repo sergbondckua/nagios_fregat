@@ -1,4 +1,5 @@
 import asyncio
+import urllib.parse
 
 from aiohttp import ClientSession, ClientTimeout, TCPConnector
 from bs4 import BeautifulSoup
@@ -21,7 +22,7 @@ class BillingUserData:
             passwd (str): The password for authentication.
         """
         self.url = url
-        self.timeout = ClientTimeout(total=10)
+        self.timeout = ClientTimeout(total=20)
         self.connector = TCPConnector(ssl=False, limit_per_host=10)
         self.headers = {"User-Agent": UserAgent().chrome}
         self.data = {"enter": "do", "uu": login, "pp": passwd}
@@ -40,7 +41,7 @@ class BillingUserData:
 
         await self.session.close()
 
-    async def fetch_data(self, url: str, params: dict[str, str]) -> str:
+    async def _fetch_data(self, url: str, params: dict[str, str]) -> str:
         """
         Fetch data from the given URL with the specified parameters.
 
@@ -61,59 +62,60 @@ class BillingUserData:
         ) as response:
             return await response.text()
 
-    async def get_profile_link(self, user: str) -> str:
+    async def get_profile_link(self, user_login: str) -> str:
         """
         Get the profile link for the given user.
 
         Parameters:
-            user (str): The username to find the profile link.
+            user_login (str): The username to find the profile link.
 
         Returns:
             str: The profile link URL.
         """
 
         url = f"{self.url}/cgi-bin/adm/adm.pl"
-        params = {"a": "listuser", "name": user}
-        html = await self.fetch_data(url, params)
+        params = {"a": "listuser", "name": user_login}
+        html = await self._fetch_data(url, params)
         soup = BeautifulSoup(html, "lxml")
 
         try:
             rows = soup.find("table", {"class": "zebra"}).find_all("tr")[2:]
         except AttributeError as exp:
             # If 'soup.find' or any attribute extraction fails, it means the user doesn't exist.
-            raise ValueError(f"The user '{user}' does not exist.") from exp
+            raise ValueError(
+                f"The user '{user_login}' does not exist."
+            ) from exp
 
         link_user = self.url + rows[0].find("a").get("href")
-        url_profile = f"{link_user}&username={user}"
+        url_profile = f"{link_user}&username={user_login}"
         logger.info("Profile URL: %s", url_profile)
 
         return url_profile
 
-    async def get_fio_user(self, name_and_lastname: str):
-        """Returns information"""
+    async def find_user_data(
+        self, params: dict[str, str]
+    ) -> list[dict[str, str]]:
+        """Fetch user data from the billing system using the given parameters.
+
+        Parameters:
+            params (dict): The query parameters for the request.
+
+        Returns:
+            list[dict]: A list of dictionaries containing user data.
+        """
 
         url = f"{self.url}/cgi-bin/adm/adm.pl"
-        params = {"a": "listuser", "fio": name_and_lastname}
-        html = await self.fetch_data(url, params)
+        html = await self._fetch_data(url, params)
         soup = BeautifulSoup(html, "lxml")
-        try:
-            rows = soup.select("table.zebra tr")
-            print(rows)
-        except AttributeError as exp:
-            # If 'soup.find' or any attribute extraction fails, it means the user doesn't exist.
-            raise ValueError(
-                f"The user '{name_and_lastname}' does not exist."
-            ) from exp
-
-        # Initialize an empty list to store the extracted data
+        rows = soup.select("table.zebra tr")
         data = []
 
-        # Loop through each row and extract the data
         for row in rows:
             columns = row.select("td")
             if len(columns) >= 8:
                 date_time = columns[0].text.strip()
                 login = columns[1].select("b")[0].text.strip()
+                url_profile = columns[1].select("a")[0].get("href").strip()
                 full_name = columns[2].select("b")[0].text.strip()
                 address = columns[3].text.strip()
                 group = columns[4].text.strip()
@@ -121,11 +123,11 @@ class BillingUserData:
                 balance_without = columns[6].text.strip()
                 balance_with = columns[7].text.strip()
 
-                # Append the data as a dictionary to the list
                 data.append(
                     {
                         "date": date_time,
                         "login": login,
+                        "url_profile": f"{self.url}{url_profile}&username={login}",
                         "full_name": full_name,
                         "address": address,
                         "group": group,
@@ -135,6 +137,50 @@ class BillingUserData:
                     }
                 )
         return data
+
+    async def find_by_login(self, user_login: str) -> list[dict[str, str]]:
+        """
+        Find users by their login.
+
+        Args:
+            user_login (str): The login name of the user.
+
+        Returns:
+            list[dict[str, str]]: A list of dictionaries containing user data.
+        """
+        params = {"a": "listuser", "name": user_login}
+
+        return await self.find_user_data(params)
+
+    async def find_by_fio(self, full_name: str) -> list[dict[str, str]]:
+        """
+        Find users by their full name.
+
+        Args:
+            full_name (str): The full name of the user.
+
+        Returns:
+            list[dict[str, str]]: A list of dictionaries containing user data.
+        """
+        url_encoded_full_name = urllib.parse.quote(full_name, encoding="cp1251")
+        params = {"a": "listuser", "fio": url_encoded_full_name}
+
+        return await self.find_user_data(params)
+
+    async def find_by_login_or_fio(self, user_query: str) -> list:
+        """Find users by login or full name.
+    Args:
+        user_query (str): The query string representing either a login or a full name.
+
+    Returns:
+        list: A list of users that match the provided query.
+    """
+
+        by_login = await self.find_by_login(user_query)
+        if by_login:
+            return by_login
+
+        return await self.find_by_fio(user_query)
 
     async def get_credentials_user(self, url_profile: str) -> dict[str, str]:
         """
@@ -148,7 +194,7 @@ class BillingUserData:
         """
 
         params = {"act": "blank"}
-        html = await self.fetch_data(url_profile, params)
+        html = await self._fetch_data(url_profile, params)
         soup = BeautifulSoup(html, "lxml")
         credentials = {}
 
@@ -184,7 +230,7 @@ class BillingUserData:
                 - 'port': Port number associated with the session."""
 
         params = {"act": "seance"}
-        html = await self.fetch_data(url_profile, params)
+        html = await self._fetch_data(url_profile, params)
         soup = BeautifulSoup(html, "lxml")
         rows = soup.find("table", {"class": "zebra-small"}).find_all("tr")[
             1:rows
@@ -219,7 +265,7 @@ class BillingUserData:
         """
 
         params = {}
-        html = await self.fetch_data(url_profile, params)
+        html = await self._fetch_data(url_profile, params)
         soup = BeautifulSoup(html, "lxml")
 
         # Initialize an empty dictionary
@@ -248,8 +294,17 @@ async def main():
         login=env.str("LOGIN_BILLING"),
         passwd=env.str("PASSWD_BILLING"),
     ) as bill:
-        fio = await bill.get_fio_user("%CE%EA%F1%E0%ED%E8%F7%E5%ED%EA%EE")
-    print(fio)
+        # fio = await bill.find_by_fio("Оксаниченко")
+        # login = await bill.find_by_login("chk_oks")
+        data = await bill.find_by_login_or_fio("chk_oks")
+
+    print(
+        data,
+        # fio,
+        # login,
+        sep="\n\n",
+    )
+
 
 if __name__ == "__main__":
     asyncio.run(main())

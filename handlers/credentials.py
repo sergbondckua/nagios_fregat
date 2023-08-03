@@ -1,3 +1,4 @@
+from __future__ import annotations
 import asyncio
 from datetime import datetime
 
@@ -10,8 +11,63 @@ from utils.log import logger
 from utils.misc import billing, require_group_membership
 
 
+async def get_users_list(message: types.Message):
+    """List users"""
+
+    # Check whether the command was sent with the user's login
+    if not message.get_args():
+        await message.answer(ct.correct_abon_command)
+        return
+
+    await message.answer_chat_action(action=types.ChatActions.TYPING)
+    user_query = message.get_args().strip()
+    async with await billing() as bill:
+        users = await bill.find_by_login_or_fio(user_query)
+
+    if not users:
+        await message.answer(ct.user_not_found.format(user_query))
+        return
+
+    users_data_for_button = [
+        (
+            f"🟢 {user['address']}",
+            f"profile__{user['login']}",
+        )
+        if not user["date"]
+        else (
+            f"🔴 {user['address']}",
+            f"profile__{user['login']}__{user['url_profile']}",
+        )
+        for user in users
+    ]
+    keyboard = await make_inline_keyboard(*sum(users_data_for_button, ()))
+    # TODO: const text
+    await message.answer(
+        text=f"Знайдено за вашим запитом: {user_query}", reply_markup=keyboard
+    )
+
+
+async def get_user_profile_credentials(call: types.CallbackQuery):
+    """TODO:"""
+    user_login = call.data.split("__")[1]
+    msg = ct.selected_user_text.format(title=user_login, url="#")
+    keyboard = await make_inline_keyboard(
+        ct.btn_sessions,
+        f"session__{user_login}",
+        ct.btn_balance,
+        f"balance__{user_login}",
+        ct.btn_blank,
+        f"blank__{user_login}",
+        ct.btn_close,
+        "close",
+        row_width=3,
+    )
+
+    await call.message.answer(msg, reply_markup=keyboard)
+
+
 @require_group_membership()
-async def send_user_credentials(message: types.Message):
+async def send_user_credentials(message: types.Message | types.CallbackQuery):
     """Send user_login credentials with inline keyboard options."""
 
     # Check whether the command was sent with the user's login
@@ -82,11 +138,10 @@ async def _send_user_info(call: types.CallbackQuery, get_msg_func):
     """Send user information using a callback query."""
 
     await call.message.answer_chat_action(action=types.ChatActions.TYPING)
-    
-    user = call.data.split("__")[1]
+
+    url_profile = call.data.split("__")[2]
     async with await billing() as bill:
-        link = await bill.get_profile_link(user)
-        info = await get_msg_func(bill, link)
+        info = await get_msg_func(bill, url_profile)
     keyboard = await make_inline_keyboard(ct.btn_close, "close")
 
     await call.message.answer(info, reply_markup=keyboard)
