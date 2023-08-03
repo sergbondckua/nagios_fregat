@@ -1,7 +1,10 @@
+import asyncio
+
 from aiohttp import ClientSession, ClientTimeout, TCPConnector
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
 
+from loader import env
 from utils.log import logger
 
 
@@ -70,7 +73,7 @@ class BillingUserData:
         """
 
         url = f"{self.url}/cgi-bin/adm/adm.pl"
-        params = {"a": "listuser", "id": "", "name": user}
+        params = {"a": "listuser", "name": user}
         html = await self.fetch_data(url, params)
         soup = BeautifulSoup(html, "lxml")
 
@@ -85,6 +88,53 @@ class BillingUserData:
         logger.info("Profile URL: %s", url_profile)
 
         return url_profile
+
+    async def get_fio_user(self, name_and_lastname: str):
+        """Returns information"""
+
+        url = f"{self.url}/cgi-bin/adm/adm.pl"
+        params = {"a": "listuser", "fio": name_and_lastname}
+        html = await self.fetch_data(url, params)
+        soup = BeautifulSoup(html, "lxml")
+        try:
+            rows = soup.select("table.zebra tr")
+            print(rows)
+        except AttributeError as exp:
+            # If 'soup.find' or any attribute extraction fails, it means the user doesn't exist.
+            raise ValueError(
+                f"The user '{name_and_lastname}' does not exist."
+            ) from exp
+
+        # Initialize an empty list to store the extracted data
+        data = []
+
+        # Loop through each row and extract the data
+        for row in rows:
+            columns = row.select("td")
+            if len(columns) >= 8:
+                date_time = columns[0].text.strip()
+                login = columns[1].select("b")[0].text.strip()
+                full_name = columns[2].select("b")[0].text.strip()
+                address = columns[3].text.strip()
+                group = columns[4].text.strip()
+                packet = columns[5].text.strip()
+                balance_without = columns[6].text.strip()
+                balance_with = columns[7].text.strip()
+
+                # Append the data as a dictionary to the list
+                data.append(
+                    {
+                        "date": date_time,
+                        "login": login,
+                        "full_name": full_name,
+                        "address": address,
+                        "group": group,
+                        "packet": packet,
+                        "balance_without": balance_without,
+                        "balance_with": balance_with,
+                    }
+                )
+        return data
 
     async def get_credentials_user(self, url_profile: str) -> dict[str, str]:
         """
@@ -190,3 +240,16 @@ class BillingUserData:
 
         if self.session:
             await self.session.close()
+
+
+async def main():
+    async with BillingUserData(
+        url=env.str("URL_BILLING"),
+        login=env.str("LOGIN_BILLING"),
+        passwd=env.str("PASSWD_BILLING"),
+    ) as bill:
+        fio = await bill.get_fio_user("%CE%EA%F1%E0%ED%E8%F7%E5%ED%EA%EE")
+    print(fio)
+
+if __name__ == "__main__":
+    asyncio.run(main())
