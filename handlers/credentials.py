@@ -48,7 +48,6 @@ async def process_users_query(message: types.Message):
     keyboard = await make_inline_keyboard(*sum(users_data_for_button, ()))
 
     logger.info("Request %s - processed successfully.", user_query)
-
     await message.answer(
         text=ct.get_users_list_text.format(user_query), reply_markup=keyboard
     )
@@ -115,8 +114,8 @@ async def _send_user_info(
         user_profile = await bill.find_by_login(user_login)
         url_profile = user_profile[0].get("url_profile")
         info = await get_msg_func(bill, url_profile)
-    keyboard = await make_inline_keyboard(ct.btn_close, "close")
 
+    keyboard = await make_inline_keyboard(ct.btn_close, "close")
     await call.message.answer(info, reply_markup=keyboard)
 
 
@@ -131,45 +130,55 @@ async def _get_blank_msg(bill: BillingUserData, link: str) -> str:
     return msg
 
 
+async def _get_balance_msg(bill: BillingUserData, link: str) -> str:
+    balance = await bill.get_balance_user(link)
+    msg = "\n".join(f"{key}: {value}" for key, value in balance.items())
+    return msg
+
+
 async def _get_session_msg(bill: BillingUserData, link: str) -> str:
     """Get the user's sessions message."""
 
     sessions = await bill.get_session_user(link)
 
-    # Add the time that the session lasted
-    for session in sessions:
-        if len(session["start"]) > 5:
-            # If there is a date, then we parse the date and time
-            start = datetime.strptime(session["start"], "%d.%m.%y %H:%M")
+    def parse_session_time(session_data):
+        """Parse session start and end times, and calculate session duration."""
+
+        if len(session_data["start"]) > 5:
+            start_time = datetime.strptime(
+                session_data["start"], "%d.%m.%y %H:%M"
+            )
         else:
-            # If there is no date, then we add the current date
             current_date = datetime.now().strftime("%d.%m.%y")
-            start = datetime.strptime(
-                f"{current_date} {session['start']}", "%d.%m.%y %H:%M"
+            start_time = datetime.strptime(
+                f"{current_date} {session_data['start']}", "%d.%m.%y %H:%M"
             )
 
         try:
-            if len(session["end"]) > 5:
-                end = datetime.strptime(session["end"], "%d.%m.%y %H:%M")
-                session["duration"] = end - start
+            if len(session_data["end"]) > 5:
+                end_time = datetime.strptime(
+                    session_data["end"], "%d.%m.%y %H:%M"
+                )
+                session_data["duration"] = end_time - start_time
             else:
-                session["duration"] = (
-                    datetime.now().replace(microsecond=0) - start
+                session_data["duration"] = (
+                    datetime.now().replace(microsecond=0) - start_time
                 )
         except ValueError:
-            session["end"] = session["end"] + " 🟢"
-            session["duration"] = datetime.now().replace(microsecond=0) - start
+            session_data["end"] = session_data["end"] + " 🟢"
+            session_data["duration"] = (
+                datetime.now().replace(microsecond=0) - start_time
+            )
 
-    msg = "\n\n".join(
+    for session in sessions:
+        parse_session_time(session)
+
+    formatted_sessions = [
         ct.sessions_text.format(
             x["start"], x["end"], x["duration"], x["ip"], x["mac"]
         )
         for x in sessions
-    )
+    ]
+
+    msg = "\n\n".join(formatted_sessions)
     return msg if msg else ct.not_found_session
-
-
-async def _get_balance_msg(bill: BillingUserData, link: str) -> str:
-    balance = await bill.get_balance_user(link)
-    msg = "\n".join(f"{key}: {value}" for key, value in balance.items())
-    return msg
