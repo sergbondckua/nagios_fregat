@@ -1,12 +1,8 @@
-import asyncio
 import urllib.parse
 
 from aiohttp import ClientSession, ClientTimeout, TCPConnector
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
-
-from loader import env
-from utils.log import logger
 
 
 class BillingUserData:

@@ -14,7 +14,7 @@ from handlers.credentials import (
     send_session,
     send_balance,
     close,
-    get_users_list,
+    process_users_query,
     get_user_profile_credentials,
 )
 
@@ -22,7 +22,7 @@ from handlers.credentials import (
 dp.register_message_handler(start.send_welcome, commands=["start"])
 dp.register_message_handler(helps.send_help, commands=["help"])
 dp.register_message_handler(send_critical_hosts_message, commands=["nagios"])
-dp.register_message_handler(get_users_list, commands=["abon"])
+dp.register_message_handler(process_users_query, commands=["abon"])
 
 # Register callback handlers
 dp.register_callback_query_handler(send_blank, text_contains="blank")

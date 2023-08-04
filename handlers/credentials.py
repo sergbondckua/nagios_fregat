@@ -1,5 +1,4 @@
 from __future__ import annotations
-import asyncio
 from collections.abc import Callable
 from datetime import datetime
 
@@ -13,16 +12,21 @@ from utils.misc import billing, require_group_membership
 
 
 @require_group_membership()
-async def get_users_list(message: types.Message):
-    """List users"""
+async def process_users_query(message: types.Message):
+    """Processing a request for a list of users.
 
-    # Check whether the command was sent with the user's login
-    if not message.get_args():
+    Args:
+        message (types.Message): The message that contains the request.
+    """
+
+    user_query = message.get_args().strip()
+
+    # Check whether the command was sent with the user's login or name
+    if not user_query:
         await message.answer(ct.correct_abon_command)
         return
 
     await message.answer_chat_action(action=types.ChatActions.TYPING)
-    user_query = message.get_args().strip()
     async with await billing() as bill:
         users = await bill.find_by_login_or_fio(user_query)
 
