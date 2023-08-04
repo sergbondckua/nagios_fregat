@@ -62,36 +62,6 @@ class BillingUserData:
         ) as response:
             return await response.text()
 
-    async def get_profile_link(self, user_login: str) -> str:
-        """
-        Get the profile link for the given user.
-
-        Parameters:
-            user_login (str): The username to find the profile link.
-
-        Returns:
-            str: The profile link URL.
-        """
-
-        url = f"{self.url}/cgi-bin/adm/adm.pl"
-        params = {"a": "listuser", "name": user_login}
-        html = await self._fetch_data(url, params)
-        soup = BeautifulSoup(html, "lxml")
-
-        try:
-            rows = soup.find("table", {"class": "zebra"}).find_all("tr")[2:]
-        except AttributeError as exp:
-            # If 'soup.find' or any attribute extraction fails, it means the user doesn't exist.
-            raise ValueError(
-                f"The user '{user_login}' does not exist."
-            ) from exp
-
-        link_user = self.url + rows[0].find("a").get("href")
-        url_profile = f"{link_user}&username={user_login}"
-        logger.info("Profile URL: %s", url_profile)
-
-        return url_profile
-
     async def find_user_data(
         self, params: dict[str, str]
     ) -> list[dict[str, str]]:
@@ -169,12 +139,12 @@ class BillingUserData:
 
     async def find_by_login_or_fio(self, user_query: str) -> list:
         """Find users by login or full name.
-    Args:
-        user_query (str): The query string representing either a login or a full name.
+        Args:
+            user_query (str): The query string representing either a login or a full name.
 
-    Returns:
-        list: A list of users that match the provided query.
-    """
+        Returns:
+            list: A list of users that match the provided query.
+        """
 
         by_login = await self.find_by_login(user_query)
         if by_login:
@@ -286,25 +256,3 @@ class BillingUserData:
 
         if self.session:
             await self.session.close()
-
-
-async def main():
-    async with BillingUserData(
-        url=env.str("URL_BILLING"),
-        login=env.str("LOGIN_BILLING"),
-        passwd=env.str("PASSWD_BILLING"),
-    ) as bill:
-        # fio = await bill.find_by_fio("Оксаниченко")
-        # login = await bill.find_by_login("chk_oks")
-        data = await bill.find_by_login_or_fio("chk_oks")
-
-    print(
-        data,
-        # fio,
-        # login,
-        sep="\n\n",
-    )
-
-
-if __name__ == "__main__":
-    asyncio.run(main())

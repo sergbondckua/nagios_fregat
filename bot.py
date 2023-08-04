@@ -10,7 +10,6 @@ from handlers.critical_hosts import (
     send_detailed_critical_hosts_message,
 )
 from handlers.credentials import (
-    send_user_credentials,
     send_blank,
     send_session,
     send_balance,
@@ -23,8 +22,7 @@ from handlers.credentials import (
 dp.register_message_handler(start.send_welcome, commands=["start"])
 dp.register_message_handler(helps.send_help, commands=["help"])
 dp.register_message_handler(send_critical_hosts_message, commands=["nagios"])
-dp.register_message_handler(send_user_credentials, commands=["abon"])
-dp.register_message_handler(get_users_list, commands=["u"])
+dp.register_message_handler(get_users_list, commands=["abon"])
 
 # Register callback handlers
 dp.register_callback_query_handler(send_blank, text_contains="blank")

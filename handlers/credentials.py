@@ -1,5 +1,6 @@
 from __future__ import annotations
 import asyncio
+from collections.abc import Callable
 from datetime import datetime
 
 from aiogram import types
@@ -11,6 +12,7 @@ from utils.log import logger
 from utils.misc import billing, require_group_membership
 
 
+@require_group_membership()
 async def get_users_list(message: types.Message):
     """List users"""
 
@@ -25,32 +27,28 @@ async def get_users_list(message: types.Message):
         users = await bill.find_by_login_or_fio(user_query)
 
     if not users:
+        logger.info("Request %s - no results found.", user_query)
         await message.answer(ct.user_not_found.format(user_query))
         return
 
     users_data_for_button = [
-        (
-            f"🟢 {user['address']}",
-            f"profile__{user['login']}",
-        )
+        (f"{user['address']} 🟢", f"profile__{user['login']}")
         if not user["date"]
-        else (
-            f"🔴 {user['address']}",
-            f"profile__{user['login']}__{user['url_profile']}",
-        )
+        else (f"{user['address']}", f"profile__{user['login']}")
         for user in users
     ]
     keyboard = await make_inline_keyboard(*sum(users_data_for_button, ()))
-    # TODO: const text
     await message.answer(
-        text=f"Знайдено за вашим запитом: {user_query}", reply_markup=keyboard
+        text=ct.get_users_list_text.format(user_query), reply_markup=keyboard
     )
+    logger.info("Request %s - processed successfully.", user_query)
 
 
 async def get_user_profile_credentials(call: types.CallbackQuery):
-    """TODO:"""
+    """Handle the callback query to retrieve user menu credentials."""
+
     user_login = call.data.split("__")[1]
-    msg = ct.selected_user_text.format(title=user_login, url="#")
+    msg = ct.selected_user_text.format(user_login)
     keyboard = await make_inline_keyboard(
         ct.btn_sessions,
         f"session__{user_login}",
@@ -62,52 +60,8 @@ async def get_user_profile_credentials(call: types.CallbackQuery):
         "close",
         row_width=3,
     )
-
-    await call.message.answer(msg, reply_markup=keyboard)
-
-
-@require_group_membership()
-async def send_user_credentials(message: types.Message | types.CallbackQuery):
-    """Send user_login credentials with inline keyboard options."""
-
-    # Check whether the command was sent with the user's login
-    if not message.get_args():
-        await message.answer(ct.correct_abon_command)
-        return
-
-    await message.answer_chat_action(action=types.ChatActions.TYPING)
-    user_login = message.get_args().strip()
-
-    async with await billing() as bill:
-        try:
-            link = await bill.get_profile_link(user_login)
-        except asyncio.TimeoutError:
-            logger.error(
-                "Timeout error while sending user_login credentials to %s",
-                user_login,
-            )
-            await message.answer(ct.timeout_error)
-            return
-        except ValueError:
-            logger.warning("User %s not found.", user_login)
-            await message.answer(ct.user_not_found.format(user_login))
-            return
-
-    msg = ct.selected_user_text.format(title=user_login, url=link)
-    keyboard = await make_inline_keyboard(
-        ct.btn_sessions,
-        f"session__{user_login}",
-        ct.btn_balance,
-        f"balance__{user_login}",
-        ct.btn_blank,
-        f"blank__{user_login}",
-        ct.btn_close,
-        "close",
-        row_width=3,
-    )
-
-    await message.answer(msg, reply_markup=keyboard)
     logger.info("%s profile has been accessed", user_login)
+    await call.message.edit_text(msg, reply_markup=keyboard)
 
 
 async def send_blank(call: types.CallbackQuery):
@@ -134,13 +88,23 @@ async def close(call: types.CallbackQuery):
     await call.message.delete()
 
 
-async def _send_user_info(call: types.CallbackQuery, get_msg_func):
-    """Send user information using a callback query."""
+async def _send_user_info(
+    call: types.CallbackQuery, get_msg_func: Callable[BillingUserData, str]
+):
+    """
+    Send user information using a callback query.
+
+    Args:
+        call (types.CallbackQuery): The callback query triggering the function.
+        get_msg_func (Callable[[billing, str], str]): A callable function to retrieve user message.
+    """
+
+    user_login = call.data.split("__")[1]
 
     await call.message.answer_chat_action(action=types.ChatActions.TYPING)
-
-    url_profile = call.data.split("__")[2]
     async with await billing() as bill:
+        user_profile = await bill.find_by_login(user_login)
+        url_profile = user_profile[0].get("url_profile")
         info = await get_msg_func(bill, url_profile)
     keyboard = await make_inline_keyboard(ct.btn_close, "close")
 
