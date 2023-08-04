@@ -36,9 +36,12 @@ async def process_users_query(message: types.Message):
         return
 
     users_data_for_button = [
-        (f"{user['address']} 🟢", f"profile__{user['login']}")
-        if not user["date"]
-        else (f"{user['address']}", f"profile__{user['login']}")
+        (
+            f"{user['address']} 🟢"
+            if not user["date"]
+            else f"{user['address']}",
+            f"profile__{user['login']}",
+        )
         for user in users
     ]
     keyboard = await make_inline_keyboard(*sum(users_data_for_button, ()))
