@@ -51,22 +51,21 @@ async def process_users_query(message: types.Message):
     logger.info("Request %s - processed successfully.", user_query)
 
 
-async def get_user_profile_credentials(call: types.CallbackQuery):
-    """Handle the callback query to retrieve user menu credentials."""
+async def display_user_profile_menu(call: types.CallbackQuery):
+    """Handle the callback query to display the user profile menu."""
 
     user_login = call.data.split("__")[1]
     msg = ct.selected_user_text.format(user_login)
-    keyboard = await make_inline_keyboard(
-        ct.btn_sessions,
-        f"session__{user_login}",
-        ct.btn_balance,
-        f"balance__{user_login}",
-        ct.btn_blank,
-        f"blank__{user_login}",
-        ct.btn_close,
-        "close",
-        row_width=3,
-    )
+
+    buttons = [
+        (ct.btn_sessions, f"session__{user_login}"),
+        (ct.btn_balance, f"balance__{user_login}"),
+        (ct.btn_blank, f"blank__{user_login}"),
+        (ct.btn_close, "close"),
+    ]
+
+    keyboard = await make_inline_keyboard(*sum(buttons, ()), row_width=3)
+
     logger.info("%s profile has been accessed", user_login)
     await call.message.edit_text(msg, reply_markup=keyboard)
 

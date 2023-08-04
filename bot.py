@@ -15,7 +15,7 @@ from handlers.credentials import (
     send_balance,
     close,
     process_users_query,
-    get_user_profile_credentials,
+    display_user_profile_menu,
 )
 
 # Register handlers for messages
@@ -30,7 +30,7 @@ dp.register_callback_query_handler(send_session, text_contains="session")
 dp.register_callback_query_handler(send_balance, text_contains="balance")
 dp.register_callback_query_handler(close, text_contains="close")
 dp.register_callback_query_handler(
-    get_user_profile_credentials, text_contains="profile"
+    display_user_profile_menu, text_contains="profile"
 )
 dp.register_callback_query_handler(
     send_detailed_critical_hosts_message, text_contains="details"
