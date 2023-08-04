@@ -44,11 +44,14 @@ async def process_users_query(message: types.Message):
         )
         for user in users
     ]
+
     keyboard = await make_inline_keyboard(*sum(users_data_for_button, ()))
+
+    logger.info("Request %s - processed successfully.", user_query)
+
     await message.answer(
         text=ct.get_users_list_text.format(user_query), reply_markup=keyboard
     )
-    logger.info("Request %s - processed successfully.", user_query)
 
 
 async def display_user_profile_menu(call: types.CallbackQuery):
