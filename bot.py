@@ -1,21 +1,23 @@
 from aiogram import executor
 
+from apsched.jobs import start_scheduler
 from loader import dp
 from utils.db.data_process import DataBaseOperations
 from utils.set_bot_commands import set_default_commands
-from apsched.jobs import start_scheduler
+
+# Import individual handler functions
 from handlers import start, helps
 from handlers.critical_hosts import (
     send_critical_hosts,
     send_details_critical_hosts,
 )
 from handlers.credentials import (
+    close,
+    display_user_profile_menu,
+    process_users_query,
+    send_balance,
     send_blank,
     send_session,
-    send_balance,
-    close,
-    process_users_query,
-    display_user_profile_menu,
 )
 
 # Register handlers for messages
