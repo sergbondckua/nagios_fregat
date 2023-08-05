@@ -35,7 +35,7 @@ async def process_users_query(message: types.Message):
         await message.answer(ct.user_not_found.format(user_query))
         return
 
-    users_data_for_button = [
+    users_data_buttons = [
         (
             f"{user['address']} 🟢"
             if not user["date"]
@@ -43,9 +43,9 @@ async def process_users_query(message: types.Message):
             f"profile__{user['login']}",
         )
         for user in users
-    ]
+    ] + [(ct.btn_close, "close")]
 
-    keyboard = await make_inline_keyboard(*sum(users_data_for_button, ()))
+    keyboard = await make_inline_keyboard(*sum(users_data_buttons, ()))
 
     logger.info("Request %s - processed successfully.", user_query)
     await message.answer(
@@ -69,7 +69,7 @@ async def display_user_profile_menu(call: types.CallbackQuery):
     keyboard = await make_inline_keyboard(*sum(buttons, ()), row_width=3)
 
     logger.info("%s profile has been accessed", user_login)
-    await call.message.edit_text(msg, reply_markup=keyboard)
+    await call.message.answer(msg, reply_markup=keyboard)
 
 
 async def send_blank(call: types.CallbackQuery):

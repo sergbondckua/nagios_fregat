@@ -6,8 +6,8 @@ from utils.set_bot_commands import set_default_commands
 from apsched.jobs import start_scheduler
 from handlers import start, helps
 from handlers.critical_hosts import (
-    send_critical_hosts_message,
-    send_detailed_critical_hosts_message,
+    send_critical_hosts,
+    send_details_critical_hosts,
 )
 from handlers.credentials import (
     send_blank,
@@ -21,7 +21,7 @@ from handlers.credentials import (
 # Register handlers for messages
 dp.register_message_handler(start.send_welcome, commands=["start"])
 dp.register_message_handler(helps.send_help, commands=["help"])
-dp.register_message_handler(send_critical_hosts_message, commands=["nagios"])
+dp.register_message_handler(send_critical_hosts, commands=["nagios"])
 dp.register_message_handler(process_users_query, commands=["abon"])
 
 # Register callback handlers
@@ -33,7 +33,7 @@ dp.register_callback_query_handler(
     display_user_profile_menu, text_contains="profile"
 )
 dp.register_callback_query_handler(
-    send_detailed_critical_hosts_message, text_contains="details"
+    send_details_critical_hosts, text_contains="details"
 )
 
 

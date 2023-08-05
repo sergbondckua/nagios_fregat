@@ -6,7 +6,7 @@ from utils.log import logger
 from utils.misc import get_all_critical_hosts_info, send_message_with_retry
 
 
-async def send_critical_hosts_message(message: types.Message):
+async def send_critical_hosts(message: types.Message):
     """Sends a notification with all critical hosts"""
 
     await message.answer_chat_action(action=types.ChatActions.TYPING)
@@ -42,7 +42,7 @@ async def send_critical_hosts_message(message: types.Message):
         logger.warning("No critical hosts found. Data is empty.")
 
 
-async def send_detailed_critical_hosts_message(call: types.CallbackQuery):
+async def send_details_critical_hosts(call: types.CallbackQuery):
     """Sends all the details of all hosts that are down."""
 
     await call.message.delete()
