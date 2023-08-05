@@ -20,7 +20,7 @@ from handlers.credentials import (
     send_session,
 )
 
-# Register handlers for messages
+# Register messages handlers
 dp.register_message_handler(start.send_welcome, commands=["start"])
 dp.register_message_handler(helps.send_help, commands=["help"])
 dp.register_message_handler(send_critical_hosts, commands=["nagios"])
