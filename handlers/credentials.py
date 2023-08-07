@@ -38,24 +38,33 @@ async def process_users_query(message: types.Message):
     buttons, users_data = [], []
 
     for num, user in enumerate(users):
-        status = ""
+        status_session = ""
         if not user["date"]:
-            status = " 🟢"
+            status_session = " 🟢"
             if float(user["balance_with"]) < 0:
-                status = " 🟡"
+                status_session = " 🟡"
 
-        user_status = f"{user['login']}{status}"
-        buttons.append((user_status, f"profile__{user['login']}"))
-        users_data.append(
-            f"{ct.hbold(num + 1)}. {user['login']}:\n\t\t"
-            f"{user['address']}\n\t\t{user['full_name']}"
+        user_status_session = f"{user['login']}{status_session}"
+        buttons.append((user_status_session, f"profile__{user['login']}"))
+        user_info = (
+            num + 1,
+            user["login"],
+            user["address"],
+            user["full_name"],
+            user["url_profile"],
         )
+        users_data.append(user_info)
 
+    users_data_text = "\n\n".join(
+        ct.results_response_users.format(num, address, full_name, title=login, url=url)
+        for num, login, address, full_name, url in users_data
+    )
+    msg = ct.response_users_text.format(user_query, users_data_text)
     buttons.append((ct.btn_close, "close"))
     keyboard = await make_inline_keyboard(*sum(buttons, ()))
 
     logger.info("Request %s - processed successfully.", user_query)
-    await message.answer(text="\n\n".join(users_data), reply_markup=keyboard)
+    await message.answer(text=msg, reply_markup=keyboard)
 
 
 async def display_user_profile_menu(call: types.CallbackQuery):

@@ -111,14 +111,21 @@ selected_user_text = text(
     "Оберіть і отримайте потрібну інформацію.",
     sep="\n",
 )
-get_users_list_text = text(
+response_users_text = text(
     text(
         "За вашим запитом:",
         hbold("{}"),
         sep=newline_margin,
     ),
     "Отримані результати:",
+    "{}",
     sep="\n\n",
+)
+results_response_users = text(
+    text(hbold("{}."), hlink("{title}", "{url}"), ":"),
+    "{}",
+    "{}",
+    sep=newline_margin,
 )
 btn_close = text("✖️", "Прибрати")
 btn_sessions = text("Сесії")
@@ -129,7 +136,7 @@ correct_abon_command = text(
     "Введіть команду:",
     hcode("/abon логін_абонента"),
     hcode("/abon Прізвище Імʼя"),
-    sep=newline_margin
+    sep=newline_margin,
 )
 timeout_error = text(
     "⛔️", "Перевищено інтервал очікування. Збій у роботі сервера."
