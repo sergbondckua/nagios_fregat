@@ -35,22 +35,27 @@ async def process_users_query(message: types.Message):
         await message.answer(ct.user_not_found.format(user_query))
         return
 
-    users_data_buttons = [
-        (
-            f"{user['address']} 🟢"
-            if not user["date"]
-            else f"{user['address']}",
-            f"profile__{user['login']}",
-        )
-        for user in users
-    ] + [(ct.btn_close, "close")]
+    buttons, users_data = [], []
 
-    keyboard = await make_inline_keyboard(*sum(users_data_buttons, ()))
+    for num, user in enumerate(users):
+        status = ""
+        if not user["date"]:
+            status = " 🟢"
+            if float(user["balance_with"]) < 0:
+                status = " 🟡"
+
+        user_status = f"{user['login']}{status}"
+        buttons.append((user_status, f"profile__{user['login']}"))
+        users_data.append(
+            f"{ct.hbold(num + 1)}. {user['login']}:\n\t\t"
+            f"{user['address']}\n\t\t{user['full_name']}"
+        )
+
+    buttons.append((ct.btn_close, "close"))
+    keyboard = await make_inline_keyboard(*sum(buttons, ()))
 
     logger.info("Request %s - processed successfully.", user_query)
-    await message.answer(
-        text=ct.get_users_list_text.format(user_query), reply_markup=keyboard
-    )
+    await message.answer(text="\n\n".join(users_data), reply_markup=keyboard)
 
 
 async def display_user_profile_menu(call: types.CallbackQuery):
