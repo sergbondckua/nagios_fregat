@@ -24,7 +24,7 @@ from handlers.credentials import (
 dp.register_message_handler(start.send_welcome, commands=["start"])
 dp.register_message_handler(helps.send_help, commands=["help"])
 dp.register_message_handler(send_critical_hosts, commands=["nagios"])
-dp.register_message_handler(process_users_query, commands=["abon"])
+dp.register_message_handler(process_users_query, commands=["abon", "ab"])
 
 # Register callback handlers
 dp.register_callback_query_handler(send_blank, text_contains="blank")
