@@ -189,6 +189,6 @@ async def _get_session_msg(bill: BillingUserData, link: str) -> str:
         )
         for x in sessions
     ]
-
     msg = "\n\n".join(formatted_sessions)
+
     return msg if msg else ct.not_found_session
