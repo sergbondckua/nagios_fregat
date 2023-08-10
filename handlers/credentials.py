@@ -175,7 +175,7 @@ async def _get_session_msg(bill: BillingUserData, link: str) -> str:
             end_time = parse_time(end_time_str)
             session_data["duration"] = end_time - start_time
         except ValueError:
-            session_data["end"] = session_data["end"] + " 🟢"
+            session_data["end"] += " 🟢"
             session_data["duration"] = (
                 datetime.now().replace(microsecond=0) - start_time
             )
