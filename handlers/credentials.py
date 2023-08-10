@@ -158,26 +158,22 @@ async def _get_session_msg(bill: BillingUserData, link: str) -> str:
     def parse_session_time(session_data):
         """Parse session start and end times, and calculate session duration."""
 
-        if len(session_data["start"]) > 5:
-            start_time = datetime.strptime(
-                session_data["start"], "%d.%m.%y %H:%M"
-            )
-        else:
-            current_date = datetime.now().strftime("%d.%m.%y")
-            start_time = datetime.strptime(
-                f"{current_date} {session_data['start']}", "%d.%m.%y %H:%M"
-            )
+        current_date = datetime.now().strftime("%d.%m.%y")
+        start_time_str = session_data["start"]
+        end_time_str = session_data["end"]
+
+        def parse_time(time_str):
+            """Parse the given time string into a datetime object."""
+
+            if len(time_str) > 5:
+                return datetime.strptime(time_str, "%d.%m.%y %H:%M")
+            return datetime.strptime(f"{current_date} {time_str}", "%d.%m.%y %H:%M")
+
+        start_time = parse_time(start_time_str)
 
         try:
-            if len(session_data["end"]) > 5:
-                end_time = datetime.strptime(
-                    session_data["end"], "%d.%m.%y %H:%M"
-                )
-                session_data["duration"] = end_time - start_time
-            else:
-                session_data["duration"] = (
-                    datetime.now().replace(microsecond=0) - start_time
-                )
+            end_time = parse_time(end_time_str)
+            session_data["duration"] = end_time - start_time
         except ValueError:
             session_data["end"] = session_data["end"] + " 🟢"
             session_data["duration"] = (
