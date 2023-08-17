@@ -7,13 +7,19 @@ class UsersideWebDataFetcher:
         self.base_url = base_url
         self.session = requests.Session()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.session.close()
+
     def authenticate(self, username, password):
         login_url = f"{self.base_url}/adminlogin.php"
         payload = {"us_oper_login": username, "us_oper_pass": password}
         response = self.session.post(login_url, data=payload)
         return "login_page_alert" not in response.text
 
-    def fetch_page(self, link):
+    def _fetch_page(self, link):
         full_url = f"{self.base_url}/oper/{link}"
         response = self.session.get(full_url)
         return response.text
@@ -22,46 +28,63 @@ class UsersideWebDataFetcher:
         url = (
             f"abon_list.php?filter_selector0=logname&logname0_value={username}"
         )
-        html = self.fetch_page(url)
+        html = self._fetch_page(url)
         soup = BeautifulSoup(html, "lxml")
-        link = soup.select_one("div._number a")["href"]
+        link_element = soup.select_one("div._number a")
+        link = link_element["href"] if link_element else None
 
         return link
 
     def get_user_info(self, username):
         user_link = self.find_user_link_by_username(username)
-        html = self.fetch_page(user_link)
-        soup = BeautifulSoup(html, "lxml")
-        switch_link = soup.select_one("a.paragraph")["href"]
-        port_cell = soup.select_one("div.port_number")
-        port_number = port_cell.get_text(strip=True) if port_cell else "no port"
-        return port_number, switch_link
+        if user_link:
+            html = self._fetch_page(user_link)
+            soup = BeautifulSoup(html, "lxml")
+            switch_cell = soup.select_one("a.paragraph")
+            switch_link = switch_cell["href"] if switch_cell else None
+            port_cell = soup.select_one("div.port_number")
+            port_number = (
+                port_cell.get_text(strip=True) if port_cell else "no port"
+            )
+            return port_number, switch_link
+        return None
 
     def get_switch_info(self, username):
-        user_link = self.get_user_info(username)[1]
-        html = self.fetch_page(user_link)
-        soup = BeautifulSoup(html, "lxml")
-        telnet_link = soup.select("div#block_left_id a")[1]["href"]
-        access = soup.find("textarea").text.strip()
+        try:
+            port_number, user_link = self.get_user_info(username)
+        except TypeError as e:
+            print(str(e))
+            return None
 
-        return access, telnet_link
+        html = self._fetch_page(user_link)
+        soup = BeautifulSoup(html, "lxml")
+        telnet_links = soup.select("div#block_left_id a")
+        telnet_link = telnet_links[1]["href"]
+        access = soup.find("textarea").text.strip()
+        return access, telnet_link, port_number
+
+
+def main():
+    # Replace with your actual credentials
+    main_login = "---"
+    main_passwd = "---"
+    main_url = "http://00.00.00.00/"
+
+    with UsersideWebDataFetcher(main_url) as data_fetcher:
+
+        if data_fetcher.authenticate(main_login, main_passwd):
+            print("Authentication successful")
+
+            username = "test"
+            switch_data = data_fetcher.get_switch_info(username)
+            print(switch_data)
+
+            user_info = data_fetcher.get_user_info(username)
+            print(user_info)
+
+        else:
+            print("Authentication failed")
 
 
 if __name__ == "__main__":
-    # Replace with your actual credentials
-    username = "***"
-    password = "***"
-
-    url = "http://00.00.00.00"
-
-    data_fetcher = UsersideWebDataFetcher(url)
-
-    if data_fetcher.authenticate(username, password):
-        print("Authentication successful")
-        data = data_fetcher.get_switch_info("bb")
-        ui = data_fetcher.get_user_info("aaa")
-        print(data, ui)
-        # Add your parsing logic using the BeautifulSoup parsed data
-
-    else:
-        print("Authentication failed")
+    main()
