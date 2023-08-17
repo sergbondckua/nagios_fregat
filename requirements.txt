@@ -7,3 +7,4 @@ fake-useragent==1.1.3
 lxml==4.9.3
 pygismeteo==5.2.0
 pytz==2023.3
+requests==2.31.0

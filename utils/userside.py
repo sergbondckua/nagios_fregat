@@ -1,63 +1,67 @@
-from aiohttp import ClientSession, ClientTimeout, TCPConnector
+import requests
 from bs4 import BeautifulSoup
-from fake_useragent import UserAgent
 
 
-class GetUserside:
-    """This class receives the functionality of the Userside"""
+class UsersideWebDataFetcher:
+    def __init__(self, base_url):
+        self.base_url = base_url
+        self.session = requests.Session()
 
-    def __init__(self, url, login: str, passwd: str) -> None:
-        """
-        Initialize the BillingUserData object.
+    def authenticate(self, username, password):
+        login_url = f"{self.base_url}/adminlogin.php"
+        payload = {"us_oper_login": username, "us_oper_pass": password}
+        response = self.session.post(login_url, data=payload)
+        return "login_page_alert" not in response.text
 
-        Parameters:
-            url (str): Billing URL.
-            login (str): The login for authentication.
-            passwd (str): The password for authentication.
-        """
-        self.url = url
-        self.timeout = ClientTimeout(total=20)
-        self.connector = TCPConnector(ssl=False, limit_per_host=10)
-        self.headers = {"User-Agent": UserAgent().chrome}
-        self.data = {"us_oper_login": login, "us_oper_pass": passwd}
-        self.session = None
+    def fetch_page(self, link):
+        full_url = f"{self.base_url}/oper/{link}"
+        response = self.session.get(full_url)
+        return response.text
 
-    async def __aenter__(self):
-        """Async context manager entry point."""
-
-        self.session = ClientSession(
-            timeout=self.timeout, connector=self.connector, headers=self.headers
+    def find_user_link_by_username(self, username):
+        url = (
+            f"abon_list.php?filter_selector0=logname&logname0_value={username}"
         )
-        return self
+        html = self.fetch_page(url)
+        soup = BeautifulSoup(html, "lxml")
+        link = soup.select_one("div._number a")["href"]
 
-    async def __aexit__(self, exc_type, exc_value, traceback):
-        """Async context manager exit point."""
+        return link
 
-        await self.session.close()
+    def get_user_info(self, username):
+        user_link = self.find_user_link_by_username(username)
+        html = self.fetch_page(user_link)
+        soup = BeautifulSoup(html, "lxml")
+        switch_link = soup.select_one("a.paragraph")["href"]
+        port_cell = soup.select_one("div.port_number")
+        port_number = port_cell.get_text(strip=True) if port_cell else "no port"
+        return port_number, switch_link
 
-    async def _fetch_data(self, url: str, params: dict[str, str]) -> str:
-        """
-        Fetch data from the given URL with the specified parameters.
-    
-        Parameters:
-            url (str): The URL to fetch data from.
-            params (dict): The query parameters for the request.
-    
-        Returns:
-            str: The response text.
-        """
-    
-        if self.session is None:
-            self.session = ClientSession(
-                timeout=self.timeout, connector=self.connector
-            )
-        async with self.session.post(
-            url, headers=self.headers, params=params, data=self.data
-        ) as response:
-            return await response.text()
+    def get_switch_info(self, username):
+        user_link = self.get_user_info(username)[1]
+        html = self.fetch_page(user_link)
+        soup = BeautifulSoup(html, "lxml")
+        telnet_link = soup.select("div#block_left_id a")[1]["href"]
+        access = soup.find("textarea").text.strip()
+
+        return access, telnet_link
 
 
 if __name__ == "__main__":
-    userside = GetUserside(
-        "http://00/adminlogin.php", "xxx", "xxx"
-    )
+    # Replace with your actual credentials
+    username = "***"
+    password = "***"
+
+    url = "http://00.00.00.00"
+
+    data_fetcher = UsersideWebDataFetcher(url)
+
+    if data_fetcher.authenticate(username, password):
+        print("Authentication successful")
+        data = data_fetcher.get_switch_info("bb")
+        ui = data_fetcher.get_user_info("aaa")
+        print(data, ui)
+        # Add your parsing logic using the BeautifulSoup parsed data
+
+    else:
+        print("Authentication failed")
