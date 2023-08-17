@@ -12,6 +12,7 @@ from loader import env, dp, bot
 from utils.billing import BillingUserData
 from utils.log import logger
 from utils.nagios import GetCriticalHostNagios
+from utils.userside import UsersideWebDataFetcher
 
 
 async def is_user_member(chat_id, user_id):
@@ -78,6 +79,15 @@ async def billing() -> BillingUserData:
         passwd=env.str("PASSWD_BILLING"),
     )
     return bill
+
+
+def userside():
+    auth = UsersideWebDataFetcher(
+        base_url=env.str("URL_USERSIDE"),
+        login=env.str("LOGIN_USERSIDE"),
+        password=env.str("PASSWD_USERSIDE"),
+    )
+    return auth
 
 
 async def send_message_with_retry(

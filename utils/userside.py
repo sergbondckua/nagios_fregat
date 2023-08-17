@@ -5,14 +5,12 @@ from bs4 import BeautifulSoup
 class UsersideWebDataFetcher:
     """
     A class for fetching user and switch information from a web-based service.
-
-    Attributes:
-        base_url (str): The base URL of the web service.
-        session (requests.Session): A session object for making HTTP requests.
     """
 
-    def __init__(self, base_url):
+    def __init__(self, base_url, login, password):
         self.base_url = base_url
+        self.username = login
+        self.password = password
         self.session = requests.Session()
 
     def __enter__(self):
@@ -21,9 +19,12 @@ class UsersideWebDataFetcher:
     def __exit__(self, exc_type, exc_value, traceback):
         self.session.close()
 
-    def authenticate(self, username, password):
+    def authenticate(self):
         login_url = f"{self.base_url}/adminlogin.php"
-        payload = {"us_oper_login": username, "us_oper_pass": password}
+        payload = {
+            "us_oper_login": self.username,
+            "us_oper_pass": self.password,
+        }
         response = self.session.post(login_url, data=payload)
         return "login_page_alert" not in response.text
 
@@ -32,45 +33,54 @@ class UsersideWebDataFetcher:
         response = self.session.get(full_url)
         return response.text
 
-    def find_user_link_by_username(self, username):
+    @staticmethod
+    def _get_soup(html):
+        return BeautifulSoup(html, "lxml")
+
+    def _find_user_link_by_username(self, username):
         url = (
             f"abon_list.php?filter_selector0=logname&logname0_value={username}"
         )
         html = self._fetch_page(url)
-        soup = BeautifulSoup(html, "lxml")
+        soup = self._get_soup(html)
         link_element = soup.select_one("div._number a")
         link = link_element["href"] if link_element else None
 
         return link
 
     def get_user_info(self, username):
-        user_link = self.find_user_link_by_username(username)
+        user_link = self._find_user_link_by_username(username)
         if user_link:
             html = self._fetch_page(user_link)
-            soup = BeautifulSoup(html, "lxml")
+            soup = self._get_soup(html)
             switch_cell = soup.select_one("a.paragraph")
-            switch_link = switch_cell["href"] if switch_cell else None
             port_cell = soup.select_one("div.port_number")
-            port_number = (
-                port_cell.get_text(strip=True) if port_cell else "no port"
-            )
-            return port_number, switch_link
+            info = {
+                "switch_link": switch_cell["href"] if switch_cell else None,
+                "user_port": port_cell.get_text(strip=True)
+                if port_cell
+                else "no port",
+            }
+            return info
         return None
 
     def get_switch_info(self, username):
         try:
-            port_number, user_link = self.get_user_info(username)
+            user_link, port_number = (
+                item for item in self.get_user_info(username).values()
+            )
         except TypeError as e:
             print(str(e))
             return None
 
+        info = {"port": port_number}
         html = self._fetch_page(user_link)
-        soup = BeautifulSoup(html, "lxml")
+        soup = self._get_soup(html)
         services_links = soup.select("div#block_left_id a")
         if len(services_links) > 1:
-            telnet_link = services_links[1]["href"]
-            access = soup.find("textarea").text.strip()
-            return access, telnet_link, port_number
+            info["telnet_link"] = services_links[1]["href"]
+            info["access"] = soup.find("textarea").text.strip()
+            return info
         return None
 
 
@@ -80,8 +90,10 @@ def main():
     main_passwd = "---"
     main_url = "000"
 
-    with UsersideWebDataFetcher(main_url) as data_fetcher:
-        if data_fetcher.authenticate(main_login, main_passwd):
+    with UsersideWebDataFetcher(
+        main_url, main_login, main_passwd
+    ) as data_fetcher:
+        if data_fetcher.authenticate():
             print("Authentication successful")
 
             username = "test"

@@ -19,6 +19,7 @@ from handlers.credentials import (
     send_blank,
     send_session,
 )
+from handlers.usersider import send_access_device
 
 # Register messages handlers
 dp.register_message_handler(start.send_welcome, commands=["start"])
@@ -30,6 +31,7 @@ dp.register_message_handler(process_users_query, commands=["abon", "ab"])
 dp.register_callback_query_handler(send_blank, text_contains="blank")
 dp.register_callback_query_handler(send_session, text_contains="session")
 dp.register_callback_query_handler(send_balance, text_contains="balance")
+dp.register_callback_query_handler(send_access_device, text_contains="access")
 dp.register_callback_query_handler(close, text_contains="close")
 dp.register_callback_query_handler(
     display_user_profile_menu, text_contains="profile"
