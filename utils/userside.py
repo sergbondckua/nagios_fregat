@@ -3,6 +3,14 @@ from bs4 import BeautifulSoup
 
 
 class UsersideWebDataFetcher:
+    """
+    A class for fetching user and switch information from a web-based service.
+
+    Attributes:
+        base_url (str): The base URL of the web service.
+        session (requests.Session): A session object for making HTTP requests.
+    """
+
     def __init__(self, base_url):
         self.base_url = base_url
         self.session = requests.Session()
@@ -58,20 +66,21 @@ class UsersideWebDataFetcher:
 
         html = self._fetch_page(user_link)
         soup = BeautifulSoup(html, "lxml")
-        telnet_links = soup.select("div#block_left_id a")
-        telnet_link = telnet_links[1]["href"]
-        access = soup.find("textarea").text.strip()
-        return access, telnet_link, port_number
+        services_links = soup.select("div#block_left_id a")
+        if len(services_links) > 1:
+            telnet_link = services_links[1]["href"]
+            access = soup.find("textarea").text.strip()
+            return access, telnet_link, port_number
+        return None
 
 
 def main():
     # Replace with your actual credentials
     main_login = "---"
     main_passwd = "---"
-    main_url = "http://00.00.00.00/"
+    main_url = "000"
 
     with UsersideWebDataFetcher(main_url) as data_fetcher:
-
         if data_fetcher.authenticate(main_login, main_passwd):
             print("Authentication successful")
 
