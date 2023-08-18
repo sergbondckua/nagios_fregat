@@ -38,6 +38,14 @@ def _get_access_device_msg(data: UsersideWebDataFetcher, user_login: str):
     """Gets information about the device to which the user is connected"""
 
     switch_data = data.get_switch_info(user_login)
-    access_device = switch_data.get("access")
 
-    return access_device if access_device else "No data available"
+    access_device = (
+        "No data available"
+        if not switch_data["access"]
+        else switch_data["access"]
+    )
+    user_port = switch_data["port"]
+    # TODO: add constants text
+    msg = f"Порт абонента: {user_port}\nОпис доступу: {access_device}"
+
+    return msg
