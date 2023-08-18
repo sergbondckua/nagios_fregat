@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 
+from loader import env
+
 
 class UsersideWebDataFetcher:
     """
@@ -85,10 +87,10 @@ class UsersideWebDataFetcher:
 
 
 def main():
-    # Replace with your actual credentials
-    main_login = "---"
-    main_passwd = "---"
-    main_url = "000"
+
+    main_login = env.str("LOGIN_USERSIDE")
+    main_passwd = env.str("PASSWD_USERSIDE")
+    main_url = env.str("URL_USERSIDE")
 
     with UsersideWebDataFetcher(
         main_url, main_login, main_passwd
@@ -96,7 +98,7 @@ def main():
         if data_fetcher.authenticate():
             print("Authentication successful")
 
-            username = "test"
+            username = "oks"
             switch_data = data_fetcher.get_switch_info(username)
             print(switch_data)
 

@@ -10,18 +10,16 @@ from utils.userside import UsersideWebDataFetcher
 
 
 async def send_access_device(call: types.CallbackQuery):
-    """TODO: implement"""
+    """Sends device location and access"""
 
-    await _send_user_info(call, _get_access_device_msg)
+    await _send_info(call, _get_access_device_msg)
 
 
-async def _send_user_info(
+async def _send_info(
     call: types.CallbackQuery,
     get_msg_func: Callable[UsersideWebDataFetcher, str],
 ):
-    """
-    TODO: implement
-    """
+    """Send information based on the provided function."""
 
     user_login = call.data.split("_")[-1]
 
@@ -37,6 +35,8 @@ async def _send_user_info(
 
 
 def _get_access_device_msg(data: UsersideWebDataFetcher, user_login: str):
+    """Gets information about the device to which the user is connected"""
+
     switch_data = data.get_switch_info(user_login)
     access_device = switch_data.get("access")
 
