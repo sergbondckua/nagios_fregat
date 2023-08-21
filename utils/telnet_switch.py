@@ -141,15 +141,3 @@ class TelnetSwitch:
     async def port_disable(self) -> str:
         """Disable the port on the switch."""
         return await self._execute_action(action="port disable")
-
-
-async def main():
-    url = "http://193.108.248.20:8000/172.24.61.189/D-Link%20DES-3200-26/C1"
-    port = 25
-    async with TelnetSwitch(url=url, port=port) as send_telnet:
-        res = await send_telnet.cable_test()
-        print(res)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())

@@ -140,29 +140,3 @@ class UsersideWebDataFetcher:
             info["access"] = soup.find("textarea").text.strip()
 
         return info
-
-
-def main():
-    main_login = env.str("LOGIN_USERSIDE")
-    main_passwd = env.str("PASSWD_USERSIDE")
-    main_url = env.str("URL_USERSIDE")
-
-    with UsersideWebDataFetcher(
-        main_url, main_login, main_passwd
-    ) as data_fetcher:
-        if data_fetcher.authenticate():
-            print("Authentication successful")
-
-            username = "nadiyabond"
-            switch_data = data_fetcher.get_switch_info(username)
-            print(switch_data)
-
-            user_info = data_fetcher.get_user_info(username)
-            print(user_info)
-
-        else:
-            print("Authentication failed")
-
-
-if __name__ == "__main__":
-    main()
