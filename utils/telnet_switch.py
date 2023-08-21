@@ -1,4 +1,5 @@
 import asyncio
+import re
 import urllib.parse
 from aiohttp import ClientSession, ClientTimeout, TCPConnector
 from bs4 import BeautifulSoup
@@ -17,22 +18,22 @@ class TelnetSwitch:
             port (int): The port number.
 
         """
-        self._url = url
-        self._port = port
-        self._timeout = ClientTimeout(total=20)
-        self._connector = TCPConnector(ssl=False, limit_per_host=10)
-        self._headers = {"Content-Type": "application/x-www-form-urlencoded"}
-        self._session = ClientSession(
-            timeout=self._timeout,
-            connector=self._connector,
-            headers=self._headers,
+        self.url = url
+        self.port = port
+        self.timeout = ClientTimeout(total=20)
+        self.connector = TCPConnector(ssl=False, limit_per_host=10)
+        self.headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        self.session = ClientSession(
+            timeout=self.timeout,
+            connector=self.connector,
+            headers=self.headers,
         )
 
     async def __aenter__(self):
         return self
 
     async def __aexit__(self, exc_type, exc_value, traceback):
-        await self._session.close()
+        await self.session.close()
 
     async def _execute_action(self, action: str) -> str:
         """Execute a Telnet switch action."""
@@ -43,7 +44,7 @@ class TelnetSwitch:
     async def _fetch_data(self, url: str) -> str:
         """Fetch data from the specified URL."""
 
-        async with self._session.get(url) as response:
+        async with self.session.get(url) as response:
             return await response.text()
 
     async def _post_data(self, payload: str) -> str:
@@ -58,7 +59,7 @@ class TelnetSwitch:
 
         """
         url = f"{env.str('URL_USERSIDE').rstrip('/')}:8000/telnet"
-        async with self._session.post(url, data=payload) as response:
+        async with self.session.post(url, data=payload) as response:
             return await response.text()
 
     async def _get_payload(self, action: str) -> str:
@@ -72,14 +73,14 @@ class TelnetSwitch:
             str: The formatted payload data.
 
         """
-        html = await self._fetch_data(self._url)
+        html = await self._fetch_data(self.url)
         soup = BeautifulSoup(html, "lxml")
         form = soup.select_one("form")
         payload = {
             "ip": form.select_one("input#ip").get("value"),
             "model": form.select_one("input#model").get("value"),
             "cmd": urllib.parse.quote(action, encoding="cp1251"),
-            "port": self._port,
+            "port": self.port,
             "vid": None,
             "mac": None,
         }
@@ -88,17 +89,41 @@ class TelnetSwitch:
         )
         return payload_format
 
+    @staticmethod
+    async def extract_mac_addresses(text: str) -> str:
+        """Extracts MAC addresses from the provided text."""
+
+        mac_pattern = r"([0-9A-Fa-f]{2}(?:[:-][0-9A-Fa-f]{2}){5})"
+        mac_addresses = re.findall(mac_pattern, text)
+        mac_str = (
+            ",".join(mac_addresses)
+            if mac_addresses
+            else "No MAC addresses found"
+        )
+        return mac_str
+
+
+    @staticmethod
+    async def replace_br_nbsp(text):
+        replaced_br = text.replace('<br>', '\n')
+        final_text = replaced_br.replace('&nbsp;', ' ')
+        return final_text
+
     async def show_mac(self) -> str:
         """Show MAC addresses on the Telnet switch."""
-        return await self._execute_action(action="show mac")
+        mac = await self._execute_action(action="show mac")
+        return await self.extract_mac_addresses(mac)
 
     async def show_errors(self) -> str:
         """Show port ERRORS on the Telnet switch."""
-        return await self._execute_action(action="show errors")
+        cmd_errors = await self._execute_action(action="show errors")
+        errors = await self.replace_br_nbsp(cmd_errors)
+        return errors.split("--")[0]
 
     async def cable_test(self) -> str:
         """Perform cable test on the Telnet switch."""
-        return await self._execute_action(action="cable test")
+        test = await self._execute_action(action="cable test")
+        return await self.replace_br_nbsp(test)
 
     async def port_enable(self) -> str:
         """Enable the port on the switch."""
@@ -110,10 +135,10 @@ class TelnetSwitch:
 
 
 async def main():
-    url = "000"
+    url = "http://193.108.248.20:8000/172.24.61.189/D-Link%20DES-3200-26/C1"
     port = 25
     async with TelnetSwitch(url=url, port=port) as send_telnet:
-        res = await send_telnet.show_errors()
+        res = await send_telnet.cable_test()
         print(res)
 
 

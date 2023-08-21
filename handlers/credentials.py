@@ -77,13 +77,14 @@ async def display_user_profile_menu(call: types.CallbackQuery):
         (ct.btn_sessions, f"session__{user_login}"),
         (ct.btn_balance, f"balance__{user_login}"),
         (ct.btn_blank, f"blank__{user_login}"),
-        ("Доступ", f"access__{user_login}"),  # TODO: add const_text
+        ("Доступ-світч", f"access__{user_login}"),  # TODO: add const_text
+        ("Порт-сервіс", f"telnet__{user_login}"),  # TODO: add
         (ct.btn_close, "close"),
     ]
 
-    keyboard = await make_inline_keyboard(*sum(buttons, ()), row_width=2)
-
+    keyboard = await make_inline_keyboard(*sum(buttons, ()))
     logger.info("%s profile has been accessed", user_login)
+
     await call.message.answer(msg, reply_markup=keyboard)
 
 
