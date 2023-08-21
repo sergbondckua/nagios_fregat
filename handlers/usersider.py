@@ -39,8 +39,9 @@ async def telnet_menu(call: types.CallbackQuery):
         (ct.btn_cable_test, f"cable_test__{user_login}"),
         (ct.btn_close, "close"),
     ]
+    msg = ct.telnet_menu_diagnostics.format(user_login)
     keyboard = await make_inline_keyboard(*sum(buttons, ()), row_width=1)
-    await call.message.answer(user_login, reply_markup=keyboard)
+    await call.message.answer(msg, reply_markup=keyboard)
 
 
 async def _send_info(

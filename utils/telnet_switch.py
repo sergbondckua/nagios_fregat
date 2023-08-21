@@ -120,13 +120,7 @@ class TelnetSwitch:
         """Show port ERRORS on the Telnet switch."""
 
         cmd_errors = await self._execute_action(action="show errors")
-        cleaned_errors = await self.replace_br_nbsp(cmd_errors)
-        errors = "".join(
-            line.strip()
-            for line in cleaned_errors.splitlines()
-            if "Errors" in line
-        )
-        return errors if errors else "Errors: 0"
+        return await self.replace_br_nbsp(cmd_errors)
 
     async def cable_test(self) -> str:
         """Perform cable test on the Telnet switch."""
