@@ -77,8 +77,8 @@ async def display_user_profile_menu(call: types.CallbackQuery):
         (ct.btn_sessions, f"session__{user_login}"),
         (ct.btn_balance, f"balance__{user_login}"),
         (ct.btn_blank, f"blank__{user_login}"),
-        ("Доступ-світч", f"access__{user_login}"),  # TODO: add const_text
-        ("Порт-сервіс", f"telnet__{user_login}"),  # TODO: add
+        (ct.btn_access, f"access__{user_login}"),
+        (ct.btn_diagnosis, f"telnet__{user_login}"),
         (ct.btn_close, "close"),
     ]
 

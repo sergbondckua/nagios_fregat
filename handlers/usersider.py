@@ -17,27 +17,26 @@ async def send_access_device(call: types.CallbackQuery):
 
 
 async def show_mac_port(call: types.CallbackQuery):
-    await _send_info(call, _get_mac_port_device_msg)
+    await _send_info(call, _show_mac_port_msg)
 
 
 async def show_errors_port(call: types.CallbackQuery):
-    await _send_info(call, _make_show_errors_msg)
+    await _send_info(call, _show_errors_msg)
 
 
-async def make_cable_test(call: types.CallbackQuery):
-    await _send_info(call, _make_cable_test_msg)
+async def cable_test(call: types.CallbackQuery):
+    await _send_info(call, _cable_test_msg)
 
 
 async def telnet_menu(call: types.CallbackQuery):
-    """TODO:"""
+    """Display a menu for Telnet port options based on user's login."""
 
     user_login = call.data.split("_")[-1]
 
-    # TODO: const text
     buttons = [
-        ("Show mac", f"show_mac__{user_login}"),
-        ("Show errors", f"show_errors__{user_login}"),
-        ("Cable test", f"cable_test__{user_login}"),
+        (ct.btn_show_mac, f"show_mac__{user_login}"),
+        (ct.btn_show_errors, f"show_errors__{user_login}"),
+        (ct.btn_cable_test, f"cable_test__{user_login}"),
         (ct.btn_close, "close"),
     ]
     keyboard = await make_inline_keyboard(*sum(buttons, ()), row_width=1)
@@ -75,55 +74,65 @@ async def _get_access_device_msg(data: UsersideWebDataFetcher, user_login: str):
         if not switch_data["access"]
         else switch_data["access"]
     )
-    # TODO: add constants text
-    msg = f"Адреса: {address}\nПристрій: {device}\nПорт абонента: {user_port}\nОпис доступу: {access_device}"
+    msg = ct.access_decsriptions.format(
+        address, device, user_port, user_login, access_device
+    )
 
     return msg
 
 
-async def _get_mac_port_device_msg(
-    data: UsersideWebDataFetcher, user_login: str
+async def _get_telnet_data(
+    data: UsersideWebDataFetcher, user_login: str, action: str
 ):
+    """
+    Fetches data using TelnetSwitch based on the given action and user login.
+
+    Args:
+        data (UsersideWebDataFetcher): Instance of UsersideWebDataFetcher.
+        user_login (str): User's login information.
+        action (str): Action to perform, options: "show_mac", "cable_test", "show_errors".
+
+    Returns:
+        str: Message containing relevant switch information and result of the action.
+    """
+
     switch_data = data.get_switch_info(user_login)
     address = switch_data["address"]
     device = switch_data["device"]
     user_port = switch_data["user_port"]
     telnet_url = switch_data["telnet_link"]
+
     async with TelnetSwitch(url=telnet_url, port=user_port) as send_telnet:
-        mac = await send_telnet.show_mac()
+        if action == "show_mac":
+            result = await send_telnet.show_mac()
+        elif action == "cable_test":
+            result = await send_telnet.cable_test()
+        elif action == "show_errors":
+            result = await send_telnet.show_errors()
 
-    msg = ct.text(user_login, user_port, address, device, mac, sep="\n")
-
-    return msg
-
-
-async def _make_cable_test_msg(data: UsersideWebDataFetcher, user_login: str):
-    switch_data = data.get_switch_info(user_login)
-    address = switch_data["address"]
-    device = switch_data["device"]
-    user_port = switch_data["user_port"]
-    telnet_url = switch_data["telnet_link"]
-    async with TelnetSwitch(url=telnet_url, port=user_port) as send_telnet:
-        test = await send_telnet.cable_test()
-
-    msg = ct.text(
-        user_login, user_port, address, device, ct.hcode(test), sep="\n"
+    msg = ct.telnet_menu_msg.format(
+        action,
+        user_login,
+        user_port,
+        address,
+        result,
+        title=device,
+        url=telnet_url,
     )
 
     return msg
 
 
-async def _make_show_errors_msg(data: UsersideWebDataFetcher, user_login: str):
-    switch_data = data.get_switch_info(user_login)
-    address = switch_data["address"]
-    device = switch_data["device"]
-    user_port = switch_data["user_port"]
-    telnet_url = switch_data["telnet_link"]
-    async with TelnetSwitch(url=telnet_url, port=user_port) as send_telnet:
-        test = await send_telnet.show_errors()
+async def _show_mac_port_msg(data: UsersideWebDataFetcher, user_login: str):
+    """Fetches and returns a message containing MAC information."""
+    return await _get_telnet_data(data, user_login, "show_mac")
 
-    msg = ct.text(
-        user_login, user_port, address, device, ct.hcode(test), sep="\n"
-    )
 
-    return msg
+async def _show_errors_msg(data: UsersideWebDataFetcher, user_login: str):
+    """Fetches and returns a message containing error information."""
+    return await _get_telnet_data(data, user_login, "show_errors")
+
+
+async def _cable_test_msg(data: UsersideWebDataFetcher, user_login: str):
+    """Fetches and returns a message containing cable test information."""
+    return await _get_telnet_data(data, user_login, "cable_test")

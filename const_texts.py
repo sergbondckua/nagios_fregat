@@ -131,6 +131,11 @@ btn_close = text("✖️", "Прибрати")
 btn_sessions = text("Сесії")
 btn_blank = text("Облікові дані")
 btn_balance = text("Баланс")
+btn_diagnosis = text("Діагностика")
+btn_access = text("Розташування/Доступ")
+btn_show_mac = text("Show Mac")
+btn_show_errors = text("Show Errors")
+btn_cable_test = text("Cable test")
 user_not_found = text("🚷", "Результату за запитом ({}) немає.")
 correct_abon_command = text(
     "Введіть команду:",
@@ -144,4 +149,20 @@ timeout_error = text(
 require_group_member_text = text(
     "🚫",
     "{}, дана команда та функціонал Вам не доступні. Ви не є членом потрібної групи.",
+)
+
+access_decsriptions = text(
+    text(hbold("Адреса: "), {}),
+    text(hbold("Світч: "), {}),
+    text(hbold("Порт абон-та: "), {}, "({})"),
+    text(hbold("Опис доступу: "), {}, sep="\n"),
+    sep="\n\n",
+)
+
+telnet_menu_msg = text(
+    text(hbold({}) + ":", hbold({})),
+    text("Світч: ", hlink("{title}", "{url}"), "Порт: ", hbold({})),
+    text("Адреса: ", hbold({})),
+    text(hcode({})),
+    sep="\n\n",
 )

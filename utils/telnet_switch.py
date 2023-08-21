@@ -102,26 +102,35 @@ class TelnetSwitch:
         )
         return mac_str
 
-
     @staticmethod
     async def replace_br_nbsp(text):
-        replaced_br = text.replace('<br>', '\n')
-        final_text = replaced_br.replace('&nbsp;', ' ')
+        """Replace '<br>' tags with newline characters and '&nbsp;'."""
+
+        replaced_br = text.replace("<br>", "\n")
+        final_text = replaced_br.replace("&nbsp;", " ")
         return final_text
 
     async def show_mac(self) -> str:
         """Show MAC addresses on the Telnet switch."""
+
         mac = await self._execute_action(action="show mac")
         return await self.extract_mac_addresses(mac)
 
     async def show_errors(self) -> str:
         """Show port ERRORS on the Telnet switch."""
+
         cmd_errors = await self._execute_action(action="show errors")
-        errors = await self.replace_br_nbsp(cmd_errors)
-        return errors.split("--")[0]
+        cleaned_errors = await self.replace_br_nbsp(cmd_errors)
+        errors = "".join(
+            line.strip()
+            for line in cleaned_errors.splitlines()
+            if "Errors" in line
+        )
+        return errors if errors else "Errors: 0"
 
     async def cable_test(self) -> str:
         """Perform cable test on the Telnet switch."""
+
         test = await self._execute_action(action="cable test")
         return await self.replace_br_nbsp(test)
 

@@ -23,7 +23,7 @@ from handlers.usersider import (
     send_access_device,
     show_mac_port,
     telnet_menu,
-    make_cable_test,
+    cable_test,
     show_errors_port,
 )
 
@@ -40,7 +40,7 @@ dp.register_callback_query_handler(send_balance, text_contains="balance")
 dp.register_callback_query_handler(send_access_device, text_contains="access")
 dp.register_callback_query_handler(telnet_menu, text_contains="telnet")
 dp.register_callback_query_handler(show_mac_port, text_contains="show_mac")
-dp.register_callback_query_handler(make_cable_test, text_contains="cable_test")
+dp.register_callback_query_handler(cable_test, text_contains="cable_test")
 dp.register_callback_query_handler(close, text_contains="close")
 dp.register_callback_query_handler(
     show_errors_port, text_contains="show_errors"
