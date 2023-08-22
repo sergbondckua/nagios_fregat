@@ -8,7 +8,7 @@ from aiogram.utils.exceptions import MessageIsTooLong
 from pytz import timezone
 
 import const_texts as ct
-from loader import env, dp, bot
+from loader import env, bot
 from utils.billing import BillingUserData
 from utils.log import logger
 from utils.nagios import GetCriticalHostNagios
