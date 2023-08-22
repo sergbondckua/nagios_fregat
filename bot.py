@@ -1,6 +1,7 @@
 from aiogram import executor
 
 from apsched.jobs import start_scheduler
+from handlers.task_manager import task_assignment
 from loader import dp
 from utils.db.data_process import DataBaseOperations
 from utils.set_bot_commands import set_default_commands
@@ -32,6 +33,7 @@ dp.register_message_handler(start.send_welcome, commands=["start"])
 dp.register_message_handler(helps.send_help, commands=["help"])
 dp.register_message_handler(send_critical_hosts, commands=["nagios"])
 dp.register_message_handler(process_users_query, commands=["abon", "ab"])
+dp.register_message_handler(task_assignment, commands=["num", "№", "#"])
 
 # Register callback handlers
 dp.register_callback_query_handler(send_blank, text_contains="blank")

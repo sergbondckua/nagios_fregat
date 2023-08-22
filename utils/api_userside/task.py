@@ -28,7 +28,7 @@ class ApiUsersideData:
                 text = await response.text()
                 return json.loads(text)
 
-    async def get_task(self, task_id: int) -> dict:
+    async def get_task(self, task_id: str) -> dict:
         """
         Get task data by task ID.
 
@@ -42,7 +42,7 @@ class ApiUsersideData:
         task_data = await self.fetch_data(params)
         return task_data
 
-    async def get_customer(self, customer_id: int) -> dict:
+    async def get_customer(self, customer_id: str) -> dict:
         """
         Get customer data by customer ID.
 
@@ -65,10 +65,9 @@ async def main():
     """Main function to demonstrate API data retrieval."""
     api_data = ApiUsersideData()
 
-    task_id = 27761
+    task_id = "27762"
     task = await api_data.get_task(task_id)
-
-    customer_id = 689
+    customer_id = task["Data"]["customer"]["id"]
     customer = await api_data.get_customer(customer_id)
 
     print(task, customer, sep="\n")
