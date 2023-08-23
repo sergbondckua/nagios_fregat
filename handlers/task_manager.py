@@ -104,7 +104,6 @@ async def send_task(call: types.CallbackQuery):
     task_data = await get_task_details(task_id)
     customer_id = task_data["customer"]["id"]
     customer_data = await get_customer_details(customer_id)
-    print(task_data, customer_data, sep="\n")
 
     msg = ct.send_task_msg.format(
         task_data["id"],
