@@ -167,8 +167,7 @@ telnet_menu_msg = text(
     sep="\n\n",
 )
 telnet_menu_diagnostics = text(
-    text(
-        hbold("Діагностика: "), {}),
+    text(hbold("Діагностика: "), {}),
     text(
         "🚨 Увага! ",
         hitalic(
@@ -179,7 +178,27 @@ telnet_menu_diagnostics = text(
             "причиною переривання сесії у абон-та, та помилок на порту.",
             sep="\n",
         ),
-        sep="\n"
+        sep="\n",
     ),
+    sep="\n\n",
+)
+send_task_msg = text(
+    hbold("#{} - {}"),
+    text(
+        "Абонент: ",
+        hbold({}),
+        hcode("/ab chk_{}"),
+        "Телефон: " + hbold({}),
+        sep=newline_margin,
+    ),
+    "Адреса завдання: " + hbold({}),
+    text("✏️", "〰️" * 5),
+    hbold({}),
+    sep="\n\n",
+)
+sent_success = text("#{} - Успішно відправлено -> " + hbold({}))
+assign_task_msg = text(
+    text(hbold("#{} - {}"), {}, sep=newline_margin),
+    hitalic("Оберіть адресата: 👇"),
     sep="\n\n",
 )

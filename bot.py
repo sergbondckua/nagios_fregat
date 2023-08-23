@@ -1,7 +1,7 @@
 from aiogram import executor
 
 from apsched.jobs import start_scheduler
-from handlers.task_manager import task_assignment
+from handlers.task_manager import assign_task, send_task
 from loader import dp
 from utils.db.data_process import DataBaseOperations
 from utils.set_bot_commands import set_default_commands
@@ -33,7 +33,7 @@ dp.register_message_handler(start.send_welcome, commands=["start"])
 dp.register_message_handler(helps.send_help, commands=["help"])
 dp.register_message_handler(send_critical_hosts, commands=["nagios"])
 dp.register_message_handler(process_users_query, commands=["abon", "ab"])
-dp.register_message_handler(task_assignment, commands=["num", "№", "#"])
+dp.register_message_handler(assign_task, commands=["num", "№", "#"])
 
 # Register callback handlers
 dp.register_callback_query_handler(send_blank, text_contains="blank")
@@ -43,6 +43,7 @@ dp.register_callback_query_handler(send_access_device, text_contains="access")
 dp.register_callback_query_handler(telnet_menu, text_contains="telnet")
 dp.register_callback_query_handler(show_mac_port, text_contains="show_mac")
 dp.register_callback_query_handler(cable_test, text_contains="cable_test")
+dp.register_callback_query_handler(send_task, text_contains="send_to")
 dp.register_callback_query_handler(close, text_contains="close")
 dp.register_callback_query_handler(
     show_errors_port, text_contains="show_errors"
