@@ -104,13 +104,16 @@ async def send_task(call: types.CallbackQuery):
     task_data = await get_task_details(task_id)
     customer_id = task_data["customer"]["id"]
     customer_data = await get_customer_details(customer_id)
+    print(task_data, customer_data, sep="\n")
 
     msg = ct.send_task_msg.format(
         task_data["id"],
         task_data["type"]["name"],
-        customer_data["full_name"],
-        task_data["customer"]["login"],
-        customer_data["phone"][1]["number"].replace("-", ""),
+        customer_data["full_name"] if customer_data else None,
+        task_data.get("customer").get("login"),
+        customer_data["phone"][1]["number"].replace("-", "")
+        if customer_data
+        else None,
         task_data["address"]["text"],
         await TelnetSwitch.replace_br_nbsp(task_data["description"]),
     )
