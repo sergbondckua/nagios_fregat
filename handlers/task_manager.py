@@ -4,7 +4,8 @@ from collections.abc import Callable
 from aiogram import types
 
 import const_texts as ct
-from utils.api_userside.task import ApiUsersideData
+from utils.api_userside.api import ApiUsersideData
+from utils.db.data_process import DataBaseOperations
 from utils.keyboards import make_inline_keyboard
 from utils.telnet_switch import TelnetSwitch
 
@@ -27,5 +28,7 @@ async def task_assignment(message: types.Message):
         f"Адреса завдання: {task_data['Data']['address']['text']}"
         f"\n\n{await TelnetSwitch.replace_br_nbsp(task_data['Data']['description'])}"
     )
+    list_data = await DataBaseOperations().get_users_profile_from_db()
+    keyboard = await make_inline_keyboard(*sum([(i["full_name"], f"send_to__{i['user_id']}") for i in list_data], ()))
 
-    await message.answer(msg)
+    await message.answer(msg, reply_markup=keyboard)
