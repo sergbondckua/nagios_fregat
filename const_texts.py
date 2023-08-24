@@ -183,20 +183,29 @@ telnet_menu_diagnostics = text(
     sep="\n\n",
 )
 send_task_msg = text(
-    hbold("#{} - {}"),
+    hbold("#️⃣ {} - {}"),
     text(
-        "Абонент: ",
+        "👤 Абонент: ",
         hbold({}),
         hcode("/ab chk_{}"),
-        "Телефон: " + hbold({}),
         sep=newline_margin,
     ),
-    "Адреса завдання: " + hbold({}),
-    text("✏️", "〰️" * 5),
-    hbold({}),
+    "📬 Адреса завдання: " + hbold({}),
+    text(
+        text("✏️", "〰" * 8),
+        hbold({}),
+        sep="\n\n",
+    ),
     sep="\n\n",
 )
-sent_success = text("#{} - Успішно відправлено -> " + hbold({}))
+sent_success = text(
+    "✅", hcode("/# {}"), " - Успішно відправлено -> " + hbold({})
+)
+sent_unsuccessful = text(
+    "⛔️", hcode("/# {}"),
+    " - НЕ відправлено\n",
+    hbold("{} - Заблокував бота"),
+)
 assign_task_msg = text(
     text(hbold("#{} - {}"), {}, sep=newline_margin),
     hitalic("Оберіть адресата: 👇"),

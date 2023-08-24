@@ -1,7 +1,9 @@
 from __future__ import annotations
+
+import aiogram
 from aiogram import types
 import const_texts as ct
-from loader import env
+from loader import env, bot
 from utils.api_userside.api import ApiUsersideData
 from utils.db.data_process import DataBaseOperations
 from utils.keyboards import make_inline_keyboard
@@ -9,10 +11,17 @@ from utils.misc import is_user_member
 from utils.telnet_switch import TelnetSwitch
 
 
+async def get_full_name(user_id: int) -> str:
+    """Get the full name of a user using their user ID."""
+
+    user = await bot.get_chat(user_id)
+    full_name = user.full_name
+    return full_name
+
+
 async def get_task_details(task_id: str) -> dict:
-    """
-    Retrieve task details from the API based on the task ID.
-    """
+    """Retrieve task details from the API based on the task ID."""
+
     api = ApiUsersideData()
     task_api = await api.get_task(task_id)
     return task_api.get("Data")
@@ -98,24 +107,31 @@ async def create_assignment_buttons(
 
 async def send_task(call: types.CallbackQuery):
     await call.message.answer_chat_action(action=types.ChatActions.TYPING)
-    user_id, task_id = call.data.split("__")[1:]
 
-    # Retrieve task details
+    user_id, task_id = call.data.split("__")[1:]
+    full_name = await get_full_name(user_id)
     task_data = await get_task_details(task_id)
-    customer_id = task_data["customer"]["id"]
-    customer_data = await get_customer_details(customer_id)
+
+    task_type_name = task_data["type"].get("name")
+    customer_full_name = task_data["customer"].get("fullName")
+    customer_login = task_data["customer"].get("login")
+    address_text = task_data["address"].get("text")
+    description = await TelnetSwitch.replace_br_nbsp(task_data["description"])
 
     msg = ct.send_task_msg.format(
-        task_data["id"],
-        task_data["type"]["name"],
-        customer_data["full_name"] if customer_data else None,
-        task_data.get("customer").get("login"),
-        customer_data["phone"][1]["number"].replace("-", "")
-        if customer_data
-        else None,
-        task_data["address"]["text"],
-        await TelnetSwitch.replace_br_nbsp(task_data["description"]),
+        task_id,
+        task_type_name,
+        customer_full_name,
+        customer_login,
+        address_text,
+        description,
     )
 
-    await call.bot.send_message(user_id, msg)
-    await call.message.edit_text(ct.sent_success.format(task_id, user_id))
+    try:
+        await call.bot.send_message(user_id, msg)
+        success_message = ct.sent_success.format(task_id, full_name)
+        await call.message.edit_text(success_message)
+    except aiogram.utils.exceptions.BotBlocked:
+        # TODO: ct edit
+        blocked_message = ct.sent_unsuccessful.format(task_id, full_name)
+        await call.message.edit_text(blocked_message)
