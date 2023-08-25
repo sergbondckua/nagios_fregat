@@ -7,5 +7,6 @@ async def set_default_commands(dp):
             types.BotCommand("start", "Актувуйте бота"),
             types.BotCommand("help", "Довідка"),
             types.BotCommand("nagios", "Отримати всі непрацюючі хости"),
+            types.BotCommand("myid", "Ваші ID дані"),
         ]
     )

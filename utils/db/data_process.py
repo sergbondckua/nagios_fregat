@@ -27,7 +27,8 @@ class DataBaseOperations:
                 CREATE TABLE IF NOT EXISTS telegram_bot_users (
                     user_id INTEGER PRIMARY KEY UNIQUE,
                     username TEXT,
-                    full_name TEXT
+                    full_name TEXT,
+                    staff BOOLEAN
                 )
             """
 
@@ -36,30 +37,43 @@ class DataBaseOperations:
             self._cursor.execute(create_telegram_bot_users_table)
             self._connect_sql.commit()
 
-    async def save_user_profile_to_db(self, user_data: types.User):
+    async def save_user_profile_to_db(self, user_data: types.User, staff=False):
         """Save user profile information to the database"""
 
         query = """
-                INSERT OR IGNORE INTO telegram_bot_users
-                (user_id, username, full_name)
-                VALUES (?,?,?)
+                INSERT OR REPLACE INTO telegram_bot_users
+                (user_id, username, full_name, staff)
+                VALUES (?,?,?,?)
             """
 
         with self._connect_sql:
             self._cursor.execute(
-                query, (user_data.id, user_data.username, user_data.full_name)
+                query,
+                (user_data.id, user_data.username, user_data.full_name, staff),
             )
             self._connect_sql.commit()
 
-    async def get_users_profile_from_db(self):
+    async def get_users_from_db(self, staff_only=False):
         """Retrieve users' profile information from the database"""
 
         query = "SELECT user_id, full_name FROM telegram_bot_users"
+
+        if staff_only:
+            query += " WHERE staff = 1"
+
         with self._connect_sql as connection:
             # Fetch the results as a list of dictionaries
             connection.row_factory = sqlite3.Row
             cursor = connection.cursor()
             return cursor.execute(query).fetchall()
+
+    async def delete_user_from_db(self, user_id):
+        """Delete a user from the database"""
+
+        query = """DELETE FROM telegram_bot_users WHERE user_id=(?)"""
+        with self._connect_sql:
+            self._cursor.execute(query, (user_id,))
+            self._connect_sql.commit()
 
     async def write_all_hosts_to_db(self, hosts: list[tuple[str]]) -> None:
         """Write the host names to the database"""

@@ -8,8 +8,14 @@ async def send_welcome(message: types.Message):
     This handler will be called when user sends `/start` command
     """
 
-    # Initialize the database operations
-    db = DataBaseOperations()
+    arg = message.get_args()
+    db = DataBaseOperations()  # Initialize the database operations
     bot_name = (await message.bot.get_me()).first_name
-    await db.save_user_profile_to_db(message.from_user)  # Save the user profile
+
+    # Save the user profile
+    if arg == "mounter":
+        await db.save_user_profile_to_db(message.from_user, staff=True)
+    else:
+        await db.save_user_profile_to_db(message.from_user)
+
     await message.answer(ct.start_text.format(bot_name))

@@ -7,7 +7,6 @@ from loader import env, bot
 from utils.api_userside.api import ApiUsersideData
 from utils.db.data_process import DataBaseOperations
 from utils.keyboards import make_inline_keyboard
-from utils.misc import is_user_member
 from utils.telnet_switch import TelnetSwitch
 
 
@@ -62,7 +61,7 @@ async def assign_task(message: types.Message):
         "type": task_data["type"]["name"],
     }
 
-    users = await get_relevant_users(user_id, chat_id)
+    users = await get_relevant_users(user_id)
     buttons = await create_assignment_buttons(
         users, chat_name, chat_id, task_id
     )
@@ -75,17 +74,12 @@ async def assign_task(message: types.Message):
     await message.answer(msg, reply_markup=keyboard)
 
 
-async def get_relevant_users(user_id: str, chat_id: str) -> list[dict]:
-    users = await DataBaseOperations().get_users_profile_from_db()
-    relevant_users = [
-        user
-        for user in users
-        if user["user_id"] != user_id
-        and (
-            await is_user_member(chat_id, user["user_id"])
-            or await is_user_member(env.int("CHAT_SUPPORT_ID"), user["user_id"])
-        )
-    ]
+async def get_relevant_users(user_id: str) -> list[dict]:
+    """Get relevant users"""
+
+    users = await DataBaseOperations().get_users_from_db(staff_only=True)
+    relevant_users = [user for user in users if user["user_id"] != user_id]
+
     return relevant_users
 
 
@@ -132,6 +126,5 @@ async def send_task(call: types.CallbackQuery):
         success_message = ct.sent_success.format(task_id, full_name)
         await call.message.edit_text(success_message)
     except aiogram.utils.exceptions.BotBlocked:
-        # TODO: ct edit
         blocked_message = ct.sent_unsuccessful.format(task_id, full_name)
-        await call.message.edit_text(blocked_message)
+        await call.message.answer(blocked_message)
