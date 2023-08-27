@@ -2,6 +2,7 @@ from aiogram import executor
 
 from apsched.jobs import start_scheduler
 from handlers.misc import get_ref, cmd_info_id
+from handlers.task_comment import add_task_comment
 from handlers.task_manager import assign_task, send_task
 from loader import dp
 from utils.db.data_process import DataBaseOperations
@@ -37,6 +38,9 @@ dp.register_message_handler(process_users_query, commands=["abon", "ab"])
 dp.register_message_handler(assign_task, commands=["num", "№", "#"])
 dp.register_message_handler(get_ref, commands=["ref"])
 dp.register_message_handler(cmd_info_id, commands=["myid"])
+dp.register_message_handler(
+    add_task_comment, commands=["add_cmt", "add_comment"]
+)
 
 # Register callback handlers
 dp.register_callback_query_handler(send_blank, text_contains="blank")

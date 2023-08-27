@@ -140,12 +140,7 @@ btn_show_mac = text("Show Mac")
 btn_show_errors = text("Show Errors")
 btn_cable_test = text("Cable test")
 user_not_found = text("🚷", "Результату за запитом ({}) немає.")
-correct_abon_command = text(
-    "Введіть команду:",
-    hcode("/abon логін_абонента"),
-    hcode("/abon Прізвище Імʼя"),
-    sep=newline_margin,
-)
+correct_abon_command = text("Некоректний формат команди.")
 timeout_error = text(
     "⛔️", "Перевищено інтервал очікування. Збій у роботі сервера."
 )
@@ -153,7 +148,8 @@ require_group_member_text = text(
     "🚫",
     "{}, дана команда та функціонал Вам не доступні. Ви не є членом потрібної групи.",
 )
-
+not_authorized_userside = text("Неуспішна авторизація в Userside")
+not_found_task_id = text("🚫 Номер завдання не знайдено або помилка при введені.")
 access_decsriptions = text(
     text(hbold("Адреса: "), {}),
     text(hbold("Світч: "), {}),
@@ -199,6 +195,11 @@ send_task_msg = text(
         hbold({}),
         sep="\n\n",
     ),
+    text(
+        "✍️ -----\n\n",
+        "Додати коментар: ",
+        hcode("/add_cmt {}:"),
+    ),
     sep="\n\n",
 )
 sent_success = text(
@@ -213,4 +214,9 @@ assign_task_msg = text(
     text(hbold("#{} - {}"), {}, sep=newline_margin),
     hitalic("Оберіть адресата: 👇"),
     sep="\n\n",
+)
+add_task_comment_msg = text(
+    text("🆗 Коментар для заявки", hbold("#{}"), "додано: "),
+    hitalic({}),
+    sep=newline_margin + "\n",
 )

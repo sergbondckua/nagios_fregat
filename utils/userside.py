@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-from loader import env
 
 
 class UsersideWebDataFetcher:
@@ -140,3 +139,10 @@ class UsersideWebDataFetcher:
             info["access"] = soup.find("textarea").text.strip()
 
         return info
+
+    def send_server_request(self, url, payload: dict) -> bool:
+        """Send a request to the server and return True if successful"""
+    
+        response = self.session.post(url=url, data=payload)
+
+        return response.status_code == 200

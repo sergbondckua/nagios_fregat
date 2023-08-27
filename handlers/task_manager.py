@@ -3,7 +3,7 @@ from __future__ import annotations
 import aiogram
 from aiogram import types
 import const_texts as ct
-from loader import env, bot
+from loader import bot
 from utils.api_userside.api import ApiUsersideData
 from utils.db.data_process import DataBaseOperations
 from utils.keyboards import make_inline_keyboard
@@ -119,6 +119,7 @@ async def send_task(call: types.CallbackQuery):
         customer_login,
         address_text,
         description,
+        task_id,
     )
 
     try:

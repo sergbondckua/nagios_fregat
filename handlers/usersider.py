@@ -60,7 +60,7 @@ async def _send_info(
             keyboard = await make_inline_keyboard(ct.btn_close, "close")
             await call.message.answer(info, reply_markup=keyboard)
         else:
-            await call.message.answer("Not auth Userside")
+            await call.message.answer(ct.not_authorized_userside)
 
 
 async def _get_access_device_msg(data: UsersideWebDataFetcher, user_login: str):
