@@ -42,6 +42,8 @@ async def add_task_comment(message: types.Message) -> None:
     }
 
     if await request_processing(url, payload):
-        await message.answer(ct.add_task_comment_msg.format(code, comment))
+        msg = ct.add_task_comment_msg.format(code, comment)
     else:
-        await message.answer(ct.not_found_task_id)
+        msg = ct.not_found_task_id
+
+    await message.answer(msg)
