@@ -24,12 +24,12 @@ async def add_task_comment(message: types.Message) -> None:
     args = message.get_args().split(":")
     url = f"{env.str('URL_USERSIDE')}oper/journal.php"
 
-    if len(args) >= 2:
-        code = args[0]
-        comment = f"{full_name}:\n" + " ".join(args[1:])
-    else:
+    if len(args) < 2:
         await message.answer(ct.correct_abon_command)
         return
+
+    code = args[0]
+    comment = f"{full_name}:\n" + " ".join(args[1:])
 
     payload = {
         "type": "working",
