@@ -191,7 +191,7 @@ send_task_msg = text(
     ),
     "📬 Адреса завдання: " + hbold({}),
     text(
-        text("✏️", "〰" * 8),
+        text("✏️", "Опис: "),
         hbold({}),
         sep="\n\n",
     ),
@@ -220,3 +220,4 @@ add_task_comment_msg = text(
     hitalic({}),
     sep=newline_margin + "\n",
 )
+typical_comment = text("Завдання виконано успішно!")

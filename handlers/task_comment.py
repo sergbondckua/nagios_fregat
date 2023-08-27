@@ -28,8 +28,9 @@ async def add_task_comment(message: types.Message) -> None:
         await message.answer(ct.correct_abon_command)
         return
 
-    code = args[0]
-    comment = f"{full_name}:\n" + " ".join(args[1:])
+    code, text = args[0], " ".join(args[1:])
+    typical_comment = f"{full_name}:\n{ct.typical_comment}"
+    comment = f"{full_name}:\n{text}" if text else typical_comment
 
     payload = {
         "type": "working",
