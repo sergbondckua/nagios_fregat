@@ -147,7 +147,17 @@ async def send_message_with_retry(
 
 
 async def remove_html_tags(input_string):
-    """Removes HTML tags from the input string and returns clean text."""
+    """
+    Removes HTML tags from the input string and performs additional replacements.
+    """
 
-    clean_text = re.sub(r"<[^>]*>", "", input_string)
+    # Replace <br> with newline (\n)
+    modified_text = input_string.replace("<br>", "\n")
+
+    # Replace &nbsp; with space
+    modified_text = modified_text.replace("&nbsp;", " ")
+
+    # Remove remaining HTML tags
+    clean_text = re.sub(r"<[^>]*>", "", modified_text)
+
     return clean_text

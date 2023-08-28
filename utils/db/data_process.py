@@ -37,8 +37,26 @@ class DataBaseOperations:
             self._cursor.execute(create_telegram_bot_users_table)
             self._connect_sql.commit()
 
-    async def save_user_profile_to_db(self, user_data: types.User, staff=False):
+    async def save_user_profile_to_db(self, user_data: types.User):
         """Save user profile information to the database"""
+
+        query = """
+                INSERT OR IGNORE INTO telegram_bot_users
+                (user_id, username, full_name, staff)
+                VALUES (?,?,?,?)
+            """
+
+        with self._connect_sql:
+            self._cursor.execute(
+                query,
+                (user_data.id, user_data.username, user_data.full_name, False),
+            )
+            self._connect_sql.commit()
+
+    async def update_user_profile_to_db(
+        self, user_data: types.User, staff=True
+    ):
+        """Update user profile to database"""
 
         query = """
                 INSERT OR REPLACE INTO telegram_bot_users
@@ -67,7 +85,7 @@ class DataBaseOperations:
             cursor = connection.cursor()
             return cursor.execute(query).fetchall()
 
-    async def delete_user_from_db(self, user_id):
+    async def delete_user_profile_from_db(self, user_id):
         """Delete a user from the database"""
 
         query = """DELETE FROM telegram_bot_users WHERE user_id=(?)"""

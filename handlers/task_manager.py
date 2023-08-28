@@ -8,7 +8,6 @@ from utils.api_userside.api import ApiUsersideData
 from utils.db.data_process import DataBaseOperations
 from utils.keyboards import make_inline_keyboard
 from utils.misc import remove_html_tags
-from utils.telnet_switch import TelnetSwitch
 
 
 async def get_full_name(user_id: int) -> str:
@@ -111,7 +110,7 @@ async def send_task(call: types.CallbackQuery):
     customer_full_name = task_data["customer"].get("fullName")
     customer_login = task_data["customer"].get("login")
     address_text = task_data["address"].get("text")
-    description = await TelnetSwitch.replace_br_nbsp(task_data["description"])
+    description = await remove_html_tags(task_data["description"])
 
     msg = ct.send_task_msg.format(
         task_id,
@@ -119,7 +118,7 @@ async def send_task(call: types.CallbackQuery):
         customer_full_name,
         customer_login,
         address_text,
-        await remove_html_tags(description),
+        description,
         task_id,
     )
 
