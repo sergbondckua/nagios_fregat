@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from datetime import datetime, time
 from functools import wraps
 
@@ -143,3 +144,10 @@ async def send_message_with_retry(
             len(text),
             len(parts),
         )
+
+
+async def remove_html_tags(input_string):
+    """Removes HTML tags from the input string and returns clean text."""
+
+    clean_text = re.sub(r"<[^>]*>", "", input_string)
+    return clean_text

@@ -59,19 +59,3 @@ class ApiUsersideData:
         }
         customer_data = await self.fetch_data(params)
         return customer_data
-
-
-async def main():
-    """Main function to demonstrate API data retrieval."""
-    api_data = ApiUsersideData()
-
-    task_id = "27762"
-    task = await api_data.get_task(task_id)
-    customer_id = task["Data"]["customer"]["id"]
-    customer = await api_data.get_customer(customer_id)
-
-    print(task, customer, sep="\n")
-
-
-if __name__ == "__main__":
-    asyncio.run(main())

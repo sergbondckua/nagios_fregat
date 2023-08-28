@@ -7,6 +7,7 @@ from loader import bot
 from utils.api_userside.api import ApiUsersideData
 from utils.db.data_process import DataBaseOperations
 from utils.keyboards import make_inline_keyboard
+from utils.misc import remove_html_tags
 from utils.telnet_switch import TelnetSwitch
 
 
@@ -118,7 +119,7 @@ async def send_task(call: types.CallbackQuery):
         customer_full_name,
         customer_login,
         address_text,
-        description,
+        await remove_html_tags(description),
         task_id,
     )
 
