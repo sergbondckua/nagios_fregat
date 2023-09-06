@@ -105,6 +105,12 @@ async def send_task(call: types.CallbackQuery):
     user_id, task_id = call.data.split("__")[1:]
     full_name = await get_full_name(user_id)
     task_data = await get_task_details(task_id)
+    keyboard = await make_inline_keyboard(
+        "Add photo",
+        f"attach__journal_{task_id}",
+        ct.btn_close,
+        "close",
+    )
 
     task_type_name = task_data["type"].get("name")
     customer_full_name = task_data["customer"].get("fullName")
@@ -123,7 +129,7 @@ async def send_task(call: types.CallbackQuery):
     )
 
     try:
-        await call.bot.send_message(user_id, msg)
+        await call.bot.send_message(user_id, msg, reply_markup=keyboard)
         success_message = ct.sent_success.format(task_id, full_name)
         await call.message.edit_text(success_message)
     except aiogram.utils.exceptions.BotBlocked:

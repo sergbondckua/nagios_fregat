@@ -144,10 +144,12 @@ class UsersideWebDataFetcher:
 
         return info
 
-    def send_server_request(self, url, payload: dict) -> bool:
+    def send_server_request(
+        self, url, payload: dict, files: list = None
+    ) -> bool:
         """Send a request to the server and return True if successful"""
 
-        response = self.session.post(url=url, data=payload)
+        response = self.session.post(url=url, data=payload, files=files)
 
         return response.status_code == 200
 

@@ -1,21 +1,8 @@
 from aiogram import types
-from aiogram.dispatcher import FSMContext
-from aiogram.types import ContentTypes
 
 from loader import env
 import const_texts as ct
-from state.attach import AttachFile
-from utils.misc import userside
-
-
-async def request_processing(url, payload: dict) -> bool:
-    """Send a request to the server and return True if successful"""
-
-    with userside() as data_fetcher:
-        if not data_fetcher.authenticate():
-            return False
-
-        return data_fetcher.send_server_request(url, payload)
+from utils.misc import request_processing
 
 
 async def add_task_comment(message: types.Message) -> None:

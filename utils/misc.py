@@ -91,6 +91,16 @@ def userside():
     return auth
 
 
+async def request_processing(url, payload: dict, files: list = None) -> bool:
+    """Send a request to the server and return True if successful"""
+
+    with userside() as data_fetcher:
+        if not data_fetcher.authenticate():
+            return False
+
+        return data_fetcher.send_server_request(url, payload, files)
+
+
 async def send_message_with_retry(
     message: types.Message | Dispatcher,
     text: str,
