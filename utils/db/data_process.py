@@ -74,7 +74,7 @@ class DataBaseOperations:
     async def get_users_from_db(self, staff_only=False):
         """Retrieve users' profile information from the database"""
 
-        query = "SELECT user_id, full_name FROM telegram_bot_users"
+        query = "SELECT * FROM telegram_bot_users"
 
         if staff_only:
             query += " WHERE staff = 1"

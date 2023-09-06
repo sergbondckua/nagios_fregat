@@ -1,10 +1,14 @@
 from aiogram import executor
+from aiogram.types import ContentTypes
 
 from apsched.jobs import start_scheduler
+from handlers.attach_photo import add_task_photo, attach_task_photo
 from handlers.misc import get_ref, cmd_info_id
 from handlers.task_comment import add_task_comment
 from handlers.task_manager import assign_task, send_task
+from handlers.users_manager import get_all_users
 from loader import dp
+from state.attach import AttachFile
 from utils.db.data_process import DataBaseOperations
 from utils.set_bot_commands import set_default_commands
 
@@ -38,8 +42,12 @@ dp.register_message_handler(process_users_query, commands=["abon", "ab"])
 dp.register_message_handler(assign_task, commands=["num", "№", "#"])
 dp.register_message_handler(get_ref, commands=["ref"])
 dp.register_message_handler(cmd_info_id, commands=["myid"])
+dp.register_message_handler(get_all_users, commands=["all_users"])
 dp.register_message_handler(
     add_task_comment, commands=["add_cmt", "add_comment"]
+)
+dp.register_message_handler(
+    add_task_photo, content_types=ContentTypes.PHOTO, state=AttachFile.add_file
 )
 
 # Register callback handlers
@@ -52,6 +60,7 @@ dp.register_callback_query_handler(show_mac_port, text_contains="show_mac")
 dp.register_callback_query_handler(cable_test, text_contains="cable_test")
 dp.register_callback_query_handler(send_task, text_contains="send_to")
 dp.register_callback_query_handler(close, text_contains="close")
+dp.register_callback_query_handler(attach_task_photo, text_contains="attach")
 dp.register_callback_query_handler(
     show_errors_port, text_contains="show_errors"
 )

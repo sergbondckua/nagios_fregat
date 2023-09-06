@@ -1,8 +1,10 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+from aiogram.types import ContentTypes
 
 from loader import env
 import const_texts as ct
+from state.attach import AttachFile
 from utils.misc import userside
 
 
@@ -48,9 +50,3 @@ async def add_task_comment(message: types.Message) -> None:
         msg = ct.not_found_task_id
 
     await message.answer(msg)
-
-
-async def attach_task_file(call: types.CallbackQuery, state: FSMContext):
-    """Attach a task file to the Userside."""
-
-
