@@ -2,7 +2,11 @@ from aiogram import executor
 from aiogram.types import ContentTypes
 
 from apsched.jobs import start_scheduler
-from handlers.attach_photo import upload_task_photo, start_attach_task_photo
+from handlers.attach_photo import (
+    upload_task_photo,
+    start_attach_task_photo,
+    cancel_send,
+)
 from handlers.misc import get_ref, cmd_info_id
 from handlers.task_comment import add_task_comment
 from handlers.task_manager import assign_task, send_task
@@ -62,6 +66,7 @@ dp.register_callback_query_handler(show_mac_port, text_contains="show_mac")
 dp.register_callback_query_handler(cable_test, text_contains="cable_test")
 dp.register_callback_query_handler(send_task, text_contains="send_to")
 dp.register_callback_query_handler(close, text_contains="close")
+dp.register_callback_query_handler(cancel_send, text_contains="cancel_send", state="*")
 dp.register_callback_query_handler(
     start_attach_task_photo, text_contains="attach"
 )
