@@ -100,6 +100,7 @@ async def upload_task_photo(message: types.Message, state: FSMContext):
     await message.bot.delete_message(message.chat.id, msg_id)
     await message.delete()
 
+    await message.answer_chat_action(action=types.ChatActions.UPLOAD_PHOTO)
     await message.answer_photo(
         file_id,
         msg_text,

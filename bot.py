@@ -8,11 +8,18 @@ from handlers.attach_photo import (
     cancel_send,
 )
 from handlers.misc import get_ref, cmd_info_id
-from handlers.task_comment import add_task_comment
+from handlers.task_comment import (
+    add_task_comment,
+    pre_send_comment,
+    start_add_task_comment,
+    send_comment,
+    cancel_comment,
+)
 from handlers.task_manager import assign_task, send_task
 from handlers.users_manager import get_all_users
 from loader import dp
 from state.attach import AttachFile
+from state.comment import AddComment
 from utils.db.data_process import DataBaseOperations
 from utils.set_bot_commands import set_default_commands
 
@@ -55,6 +62,11 @@ dp.register_message_handler(
     content_types=ContentTypes.all(),
     state=AttachFile.add_file,
 )
+dp.register_message_handler(
+    pre_send_comment,
+    content_types=ContentTypes.TEXT,
+    state=AddComment.add_comment,
+)
 
 # Register callback handlers
 dp.register_callback_query_handler(send_blank, text_contains="blank")
@@ -66,7 +78,20 @@ dp.register_callback_query_handler(show_mac_port, text_contains="show_mac")
 dp.register_callback_query_handler(cable_test, text_contains="cable_test")
 dp.register_callback_query_handler(send_task, text_contains="send_to")
 dp.register_callback_query_handler(close, text_contains="close")
-dp.register_callback_query_handler(cancel_send, text_contains="cancel_send", state="*")
+dp.register_callback_query_handler(
+    cancel_send, text_contains="cancel_send", state="*"
+)
+dp.register_callback_query_handler(
+    cancel_comment, text_contains="cancel_comment", state="*"
+)
+dp.register_callback_query_handler(
+    start_add_task_comment, text_contains="add_comment"
+)
+dp.register_callback_query_handler(
+    send_comment,
+    text_contains="approve_send",
+    state=AddComment.approve_comment,
+)
 dp.register_callback_query_handler(
     start_attach_task_photo, text_contains="attach"
 )

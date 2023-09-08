@@ -139,6 +139,8 @@ btn_show_errors = text("Show Errors")
 btn_cable_test = text("Cable test")
 btn_cancel_send = text("Скасувати надсилання")
 btn_add_photo = text("🖼 Додати фото")
+btn_approve_send = text("✅ Відправити")
+btn_cancel_comment = text("❌ Відмінити")
 user_not_found = text("🚷", "Результату за запитом ({}) немає.")
 correct_abon_command = text("Некоректний формат команди.")
 timeout_error = text(
@@ -222,6 +224,21 @@ assign_task_msg = text(
     hitalic("Оберіть адресата: 👇"),
     sep="\n\n",
 )
+
+# task_comment
+write_comment = text(
+    text("✍️", hbold("Напиши свій коментар до завдання:\n")),
+    hitalic("⚠️ Не використовуй емодзі в коментарі.\n"),
+    sep=newline_margin,
+)
+pre_send_comment = text(
+    text("👀", hbold("Попередній перегляд Вашого коментаря:\n")),
+    "➖➖➖",
+    {},
+    "➖➖➖",
+    sep=newline_margin,
+)
+cancel_comment = text("Відправка коментаря скасована")
 add_task_comment_msg = text(
     text("🆗 Коментар для заявки", hbold("#{}"), "додано: "),
     hitalic({}),

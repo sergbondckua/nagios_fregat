@@ -106,10 +106,13 @@ async def send_task(call: types.CallbackQuery):
     full_name = await get_full_name(user_id)
     task_data = await get_task_details(task_id)
     keyboard = await make_inline_keyboard(
+        "💬 Коментар",
+        f"add_comment__{task_id}",
         ct.btn_add_photo,
         f"attach__journal_{task_id}",
         ct.btn_close,
         "close",
+        row_width=2,
     )
 
     task_type_name = task_data["type"].get("name")
