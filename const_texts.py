@@ -137,6 +137,8 @@ btn_access = text("Розташування/Доступ")
 btn_show_mac = text("Show Mac")
 btn_show_errors = text("Show Errors")
 btn_cable_test = text("Cable test")
+btn_cancel_send = text("Скасувати надсилання")
+btn_add_photo = text("🖼 Додати фото")
 user_not_found = text("🚷", "Результату за запитом ({}) немає.")
 correct_abon_command = text("Некоректний формат команди.")
 timeout_error = text(
@@ -226,3 +228,20 @@ add_task_comment_msg = text(
     sep=newline_margin + "\n",
 )
 typical_comment = text("Завдання виконано успішно!")
+
+# attach_photo
+send_photo_to_task = text(
+    "📸",
+    hbold("Надішліть фотографію до завдання #") + hcode({}),
+)
+add_photo_or_cancel = text(
+    text("⚠️", hbold("Наступним повідомленням має бути фото!")),
+    "🖼 Додайте фотографію або скасуйте надсилання!",
+    sep=newline_margin,
+)
+cancel_send_done = text("☑️ Відправка фото скасовано.")
+add_task_photo_msg = text(
+    text("➕ Фото для заявки", hbold("#") + hcode({}), "додано: "),
+    hitalic({}),
+    sep=newline_margin,
+)

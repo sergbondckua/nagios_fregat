@@ -52,7 +52,7 @@ dp.register_message_handler(
 )
 dp.register_message_handler(
     upload_task_photo,
-    content_types=ContentTypes.PHOTO,
+    content_types=ContentTypes.all(),
     state=AttachFile.add_file,
 )
 
