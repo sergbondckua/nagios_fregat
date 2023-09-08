@@ -1,8 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 
-from loader import env
-
 
 class UsersideWebDataFetcher:
     """
@@ -150,13 +148,3 @@ class UsersideWebDataFetcher:
         response = self.session.post(url=url, data=payload, files=file)
 
         return response.status_code == 200
-
-
-if __name__ == "__main__":
-    with UsersideWebDataFetcher(
-        base_url=env.str("URL_USERSIDE"),
-        login=env.str("LOGIN_USERSIDE"),
-        password=env.str("PASSWD_USERSIDE"),
-    ) as auth:
-        auth = auth.authenticate()
-        print(auth)
