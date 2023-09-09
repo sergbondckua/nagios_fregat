@@ -62,12 +62,12 @@ async def pre_send_comment(message: types.Message, state: FSMContext):
     await message.answer_chat_action(action=types.ChatActions.TYPING)
 
     full_name = message.from_user.full_name
-    typical_comment = f"{full_name}:\n{ct.typical_comment}"
+    typical_comment = ct.typical_comment.format(full_name)
     text = message.text
     comment = (
         typical_comment
-        if text in {"+", "ok", "ок", "done"}
-        else f"{full_name}:\n{text}"
+        if text.lower() in {"+", "ok", "ок", "done"}
+        else ct.comment_msg.format(full_name, text)
     )
 
     msg = emoji_utils.demojize(comment)

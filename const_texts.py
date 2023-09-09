@@ -185,6 +185,8 @@ telnet_menu_diagnostics = text(
     ),
     sep="\n\n",
 )
+
+# task_manager
 send_task_msg = text(
     hbold("#️⃣ {} - {}"),
     text(
@@ -226,9 +228,25 @@ assign_task_msg = text(
 )
 
 # task_comment
+done_task_comment = "Завдання виконано успішно!"
+comment_msg = text(
+    text({}, ":", sep=""),
+    {},
+    sep=newline_margin,
+)
+typical_comment = text(
+    text({}, ":", sep=""),
+    done_task_comment,
+    sep=newline_margin,
+)
 write_comment = text(
     text("✍️", hbold("Напиши свій коментар до завдання:\n")),
-    hitalic("⚠️ Не використовуй емодзі в коментарі.\n"),
+    hitalic("🔸 Не використовуй емодзі в коментарі."),
+    hitalic(
+        "🔸 Коментар із знаком '+', автоматично вставить",
+        text(f"➖ {done_task_comment}"),
+        sep=newline_margin,
+    ),
     sep=newline_margin,
 )
 pre_send_comment = text(
@@ -244,7 +262,6 @@ add_task_comment_msg = text(
     hitalic({}),
     sep=newline_margin + "\n",
 )
-typical_comment = text("Завдання виконано успішно!")
 
 # attach_photo
 send_photo_to_task = text(

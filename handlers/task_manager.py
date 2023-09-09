@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+
 import aiogram
 from aiogram import types
 import const_texts as ct
@@ -39,7 +41,12 @@ async def assign_task(message: types.Message):
     """
     Handle the assignment of a task to users or groups.
     """
-    task_id = message.get_args().strip()
+
+    if message.get_args():
+        task_id = message.get_args().strip()
+    else:
+        task_id = re.findall(r"#\d+", message.text)[0].lstrip("#")
+
     chat_id = message.chat.id
     user_id = message.from_user.id
     chat_name = (
@@ -54,12 +61,15 @@ async def assign_task(message: types.Message):
 
     await message.answer_chat_action(action=types.ChatActions.TYPING)
 
-    task_data = await get_task_details(task_id)
-    task_info = {
-        "num": task_data["id"],
-        "address": task_data["address"]["text"],
-        "type": task_data["type"]["name"],
-    }
+    if task_data := await get_task_details(task_id):
+        task_info = {
+            "num": task_data["id"],
+            "address": task_data["address"]["text"],
+            "type": task_data["type"]["name"],
+        }
+    else:
+        await message.answer(ct.not_found_task_id)
+        return
 
     users = await get_relevant_users(user_id)
     buttons = await create_assignment_buttons(
