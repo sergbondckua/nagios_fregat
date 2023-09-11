@@ -49,7 +49,7 @@ async def start_add_task_comment(call: types.CallbackQuery, state: FSMContext):
     await call.message.answer_chat_action(action=types.ChatActions.TYPING)
     await AddComment.add_comment.set()  # Set state
     task_id = call.data.split("__")[1]
-    msg = await call.message.answer(ct.write_comment)
+    msg = await call.message.answer(ct.write_comment.format(task_id))
 
     async with state.proxy() as data:
         data["task_id"] = task_id
