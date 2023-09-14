@@ -1,6 +1,7 @@
 import aiohttp
 from aiogram import types
 from aiogram.dispatcher import FSMContext
+from aiogram.utils.exceptions import MessageToDeleteNotFound
 from aiohttp import TCPConnector, ClientTimeout
 
 import const_texts as ct
@@ -97,9 +98,12 @@ async def upload_task_photo(message: types.Message, state: FSMContext):
     if alert_id := data.get("alert_id"):
         await message.bot.delete_message(message.chat.id, alert_id)
 
-    await message.bot.delete_message(message.chat.id, msg_id)
-    await message.delete()
+    try:
+        await message.bot.delete_message(message.chat.id, msg_id)
+    except MessageToDeleteNotFound:
+        pass
 
+    await message.delete()
     await message.answer_chat_action(action=types.ChatActions.UPLOAD_PHOTO)
     await message.answer_photo(
         file_id,
