@@ -67,13 +67,14 @@ async def _get_access_device_msg(data: UsersideWebDataFetcher, user_login: str):
     """Gets information about the device to which the user is connected"""
 
     switch_data = data.get_switch_info(user_login)
+    if not switch_data:
+        return ct.no_data
+
     user_port = switch_data["user_port"]
     device = switch_data["device"]
     address = switch_data["address"]
     access_device = (
-        "No data available"
-        if not switch_data["access"]
-        else switch_data["access"]
+        switch_data["access"] if switch_data["access"] else ct.no_data
     )
     msg = ct.access_decsriptions.format(
         address, device, user_port, user_login, access_device
@@ -98,6 +99,10 @@ async def _get_telnet_data(
     """
 
     switch_data = data.get_switch_info(user_login)
+
+    if not switch_data:
+        return ct.no_data
+
     address = switch_data["address"]
     device = switch_data["device"]
     user_port = switch_data["user_port"]

@@ -130,7 +130,11 @@ class UsersideWebDataFetcher:
         html = self._fetch_page(user_link)
         soup = self._get_soup(html)
 
-        device, address = soup.select_one("div.label_h2").text.split(" -> ")
+        try:
+            device, address = soup.select_one("div.label_h2").text.split(" -> ")
+        except AttributeError:
+            return None
+
         services_links = soup.select("div#block_left_id a")
         info = {"user_port": port_number, "device": device, "address": address}
 
