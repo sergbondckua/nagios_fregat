@@ -17,10 +17,11 @@ from handlers.task_comment import (
 )
 from handlers.task_manager import assign_task, send_task
 from handlers.users_manager import get_all_users
-from loader import dp
+from loader import dp, env
 from state.attach import AttachFile
 from state.comment import AddComment
 from utils.db.data_process import DataBaseOperations
+from utils.misc import set_locale
 from utils.set_bot_commands import set_default_commands
 
 # Import individual handler functions
@@ -115,6 +116,9 @@ async def on_start(dispatcher) -> None:
 
     # Create table if it doesn't exist
     await DataBaseOperations().create_tables()
+
+    # Set locale
+    await set_locale(env.str("LOCALE"))
 
     # Start schedule
     await start_scheduler()

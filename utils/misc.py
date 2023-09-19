@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import locale
 import re
 from datetime import datetime, time
 from functools import wraps
@@ -171,3 +172,21 @@ async def remove_html_tags(input_string):
     clean_text = re.sub(r"<[^>]*>", "", modified_text)
 
     return clean_text
+
+
+async def set_locale(language: str = None) -> None:
+    """Set the locale for date localization based on the chosen language."""
+
+    lang_map = {
+        "en": "en_US.UTF-8",
+        "ua": "uk_UA.UTF-8",
+        "de": "de_DE.UTF-8",
+    }
+    default_language = "en_US.UTF-8"
+    try:
+        locale.setlocale(
+            locale.LC_ALL, lang_map.get(language, default_language)
+        )
+    except locale.Error as e:
+        locale.setlocale(locale.LC_ALL, default_language)
+        logger.error("Invalid or unsupported language: %s", e)
