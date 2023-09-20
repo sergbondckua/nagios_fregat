@@ -28,13 +28,22 @@ class DataBaseOperations:
                     user_id INTEGER PRIMARY KEY UNIQUE,
                     username TEXT,
                     full_name TEXT,
-                    staff BOOLEAN
+                    staff BOOLEAN DEFAULT false,
+                    duty BOOLEAN DEFAULT false
                 )
+            """
+        add_column_duty = """
+                ALTER TABLE telegram_bot_users
+                ADD COLUMN duty BOOLEAN DEFAULT false;
             """
 
         with self._connect_sql:
             self._cursor.execute(create_failed_resources_table)
             self._cursor.execute(create_telegram_bot_users_table)
+            try:
+                self._cursor.execute(add_column_duty)
+            except sqlite3.OperationalError as e:
+                self.logger.error(e)
             self._connect_sql.commit()
 
     async def save_user_profile_to_db(self, user_data: types.User):
@@ -63,21 +72,51 @@ class DataBaseOperations:
                 (user_id, username, full_name, staff)
                 VALUES (?,?,?,?)
             """
+        params = (user_data.id, user_data.username, user_data.full_name, staff)
 
         with self._connect_sql:
-            self._cursor.execute(
-                query,
-                (user_data.id, user_data.username, user_data.full_name, staff),
-            )
+            self._cursor.execute(query, params)
             self._connect_sql.commit()
 
-    async def get_users_from_db(self, staff_only=False):
+    async def set_duty_user_to_db(
+        self, user_id, staff: bool = False, duty: bool = False
+    ):
+        """Assign a user to the duty team"""
+
+        query = "UPDATE telegram_bot_users SET "
+        conditions = []
+        params = []
+
+        if staff:
+            conditions.append("staff = ?")
+            params.append(staff)
+        if duty:
+            conditions.append("duty = ?")
+            params.append(duty)
+
+        if not conditions:
+            raise ValueError("At least one of 'staff' or 'duty' must be True")
+
+        query += " , ".join(conditions) + " WHERE user_id = ?"
+        params.append(user_id)
+
+        with self._connect_sql:
+            self._cursor.execute(query, params)
+            self._connect_sql.commit()
+
+    async def get_users_from_db(self, staff_only=False, duty_only=False):
         """Retrieve users' profile information from the database"""
 
         query = "SELECT * FROM telegram_bot_users"
+        conditions = []
 
         if staff_only:
-            query += " WHERE staff = 1"
+            conditions.append("staff = 1")
+        if duty_only:
+            conditions.append("duty = 1")
+
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
 
         with self._connect_sql as connection:
             # Fetch the results as a list of dictionaries

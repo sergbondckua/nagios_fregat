@@ -179,7 +179,7 @@ async def set_locale(language: str = None) -> None:
 
     lang_map = {
         "en": "en_US.UTF-8",
-        "ua": "uk_UA.UTF-8",
+        "uk": "uk_UA.UTF-8",
         "de": "de_DE.UTF-8",
     }
     default_language = "en_US.UTF-8"

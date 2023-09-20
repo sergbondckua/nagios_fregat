@@ -16,7 +16,7 @@ from handlers.task_comment import (
     cancel_comment,
 )
 from handlers.task_manager import assign_task, send_task
-from handlers.users_manager import get_all_users
+from handlers.users_manager import get_all_users, set_user_day_off_duty
 from loader import dp, env
 from state.attach import AttachFile
 from state.comment import AddComment
@@ -48,6 +48,7 @@ from handlers.usersider import (
 
 # Register messages handlers
 dp.register_message_handler(start.send_welcome, commands=["start"])
+dp.register_message_handler(set_user_day_off_duty, commands=["set_duty"])
 dp.register_message_handler(helps.send_help, commands=["help"])
 dp.register_message_handler(send_critical_hosts, commands=["nagios"])
 dp.register_message_handler(process_users_query, commands=["abon", "ab"])
