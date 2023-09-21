@@ -16,7 +16,11 @@ from handlers.task_comment import (
     cancel_comment,
 )
 from handlers.task_manager import assign_task, send_task
-from handlers.users_manager import get_all_users, set_user_day_off_duty
+from handlers.users_manager import (
+    get_all_users,
+    set_user_day_off_duty,
+    get_simple_user,
+)
 from loader import dp, env
 from state.attach import AttachFile
 from state.comment import AddComment
@@ -80,6 +84,7 @@ dp.register_callback_query_handler(telnet_menu, text_contains="telnet")
 dp.register_callback_query_handler(show_mac_port, text_contains="show_mac")
 dp.register_callback_query_handler(cable_test, text_contains="cable_test")
 dp.register_callback_query_handler(send_task, text_contains="send_to")
+dp.register_callback_query_handler(get_simple_user, text_contains="bot_user")
 dp.register_callback_query_handler(close, text_contains="close")
 dp.register_callback_query_handler(
     cancel_send, text_contains="cancel_send", state="*"

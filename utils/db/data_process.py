@@ -62,7 +62,7 @@ class DataBaseOperations:
             )
             self._connect_sql.commit()
 
-    async def update_user_profile_to_db(
+    async def update_or_create_user_to_db(
         self, user_data: types.User, staff=True
     ):
         """Update user profile to database"""
@@ -78,31 +78,37 @@ class DataBaseOperations:
             self._cursor.execute(query, params)
             self._connect_sql.commit()
 
-    async def set_duty_user_to_db(
-        self, user_id, staff: bool = False, duty: bool = False
-    ):
-        """Assign a user to the duty team"""
+    async def update_user_to_db(self, user_id, **kwargs):
+        """
+        Assign a user to the duty team by updating their information in the database.
+        """
 
+        # Ensure that at least one field to update is provided
+        if not kwargs:
+            raise ValueError("At least one field to update is required")
+
+        # Build the SQL query for updating the user record
         query = "UPDATE telegram_bot_users SET "
-        conditions = []
+        set_statements = []
         params = []
 
-        if staff:
-            conditions.append("staff = ?")
-            params.append(staff)
-        if duty:
-            conditions.append("duty = ?")
-            params.append(duty)
+        # Iterate through provided fields and build the SET statements and parameters
+        for key, value in kwargs.items():
+            set_statements.append(f"{key} = ?")
+            params.append(value)
 
-        if not conditions:
-            raise ValueError("At least one of 'staff' or 'duty' must be True")
-
-        query += " , ".join(conditions) + " WHERE user_id = ?"
+        # Add the SET statements to the query
+        query += ", ".join(set_statements)
+        query += " WHERE user_id = ?"
         params.append(user_id)
 
+        # Execute the SQL query
         with self._connect_sql:
             self._cursor.execute(query, params)
             self._connect_sql.commit()
+            self.logger.info(
+                "User %s has been updated %s successfully.", user_id, kwargs
+            )
 
     async def get_users_from_db(self, staff_only=False, duty_only=False):
         """Retrieve users' profile information from the database"""

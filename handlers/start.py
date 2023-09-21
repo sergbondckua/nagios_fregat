@@ -14,7 +14,7 @@ async def send_welcome(message: types.Message):
 
     # Save the user profile
     if arg == "mounter":
-        await db.update_user_profile_to_db(message.from_user, staff=True)
+        await db.update_or_create_user_to_db(message.from_user, staff=True)
     elif arg == "delme":
         await db.delete_user_profile_from_db(message.from_user.id)
     else:

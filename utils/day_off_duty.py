@@ -51,7 +51,7 @@ async def main():
         persons = tuple(dict(person).get("full_name") for person in people)
         print(persons)
         scheduler = DutyScheduler(persons=persons)
-        duty_info = await scheduler.get_duty_day_info("18.10.2023")
+        duty_info = await scheduler.get_duty_day_info("28.10.2023")
         weekends = ", ".join(duty_info["day_off"])
         print(duty_info["person_duty"], weekends)
 
