@@ -18,8 +18,9 @@ from handlers.task_comment import (
 from handlers.task_manager import assign_task, send_task
 from handlers.users_manager import (
     get_all_users,
-    set_user_day_off_duty,
     get_simple_user_menu,
+    change_user_day_off_duty,
+    change_user_staff,
 )
 from loader import dp, env
 from state.attach import AttachFile
@@ -52,7 +53,6 @@ from handlers.usersider import (
 
 # Register messages handlers
 dp.register_message_handler(start.send_welcome, commands=["start"])
-dp.register_message_handler(set_user_day_off_duty, commands=["set_duty"])
 dp.register_message_handler(helps.send_help, commands=["help"])
 dp.register_message_handler(send_critical_hosts, commands=["nagios"])
 dp.register_message_handler(process_users_query, commands=["abon", "ab"])
@@ -84,8 +84,16 @@ dp.register_callback_query_handler(telnet_menu, text_contains="telnet")
 dp.register_callback_query_handler(show_mac_port, text_contains="show_mac")
 dp.register_callback_query_handler(cable_test, text_contains="cable_test")
 dp.register_callback_query_handler(send_task, text_contains="send_to")
-dp.register_callback_query_handler(get_simple_user_menu, text_contains="bot_user")
+dp.register_callback_query_handler(
+    get_simple_user_menu, text_contains="bot_user"
+)
 dp.register_callback_query_handler(close, text_contains="close")
+dp.register_callback_query_handler(
+    change_user_day_off_duty, text_contains="change_duty"
+)
+dp.register_callback_query_handler(
+    change_user_staff, text_contains="change_mounter"
+)
 dp.register_callback_query_handler(
     cancel_send, text_contains="cancel_send", state="*"
 )
