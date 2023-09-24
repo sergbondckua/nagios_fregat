@@ -28,27 +28,21 @@ async def get_all_users(message: types.Message = None):
     await message.answer(msg, reply_markup=keyboard)
 
 
-async def get_simple_user(call: types.CallbackQuery):
+async def get_simple_user_menu(call: types.CallbackQuery):
     """TODO: implement"""
     user_id = call.data.split("__")[1]
+    db = DataBaseOperations()  # Initialize the database operations
+    user = dict(await db.get_simple_user(user_id))
+    full_name = user.get("full_name")
+    duty = bool(user.get("duty"))
+    staff = bool(user.get("staff"))
+    msg = f"{full_name}\nЧергування: {duty}, Персонал: {staff}"
 
-    buttons = (
-        "Set Mounter",
-        f"set_mounter__{user_id}",
-        "Unset Mounter",
-        f"unset_mounter__{user_id}",
-        "Set Duty",
-        f"set_duty__{user_id}",
-        "Unset Duty",
-        f"unset_duty__{user_id}",
-        "Delete",
-        f"delete__{user_id}",
-        ct.btn_close,
-        "close"
-    )
+    buttons = generate_buttons(user_id, staff, duty)
+    print(buttons)
 
-    keyboard = await make_inline_keyboard(*buttons, row_width=2)
-    await call.message.answer(user_id, reply_markup=keyboard)
+    keyboard = await make_inline_keyboard(*buttons, row_width=1)
+    await call.message.answer(msg, reply_markup=keyboard)
 
 
 async def set_user_day_off_duty(message: types.Message):
@@ -63,6 +57,19 @@ async def set_user_day_off_duty(message: types.Message):
     else:
         await message.answer("Not set user day off duty")
 
+def generate_buttons(user_id: str, staff: bool, duty: bool) -> tuple:
+    """Generate buttons for the user menu."""
+    return (
+        "Set Mounter" if not staff else "Unset Mounter",
+        f"set_mounter__{user_id}_{True}" if not staff else f"set_mounter__{user_id}_{False}",
+        "Set Duty" if not duty else "Unset Duty",
+        f"set_duty__{user_id}_{True}" if not duty else f"set_duty__{user_id}_{False}",
+        "Delete",
+        f"delete__{user_id}",
+        ct.btn_close,
+        "close",
+    )
+
 
 if __name__ == "__main__":
-    asyncio.run(get_all_users())
+    asyncio.run(get_simple_user_menu("5278577154"))

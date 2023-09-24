@@ -130,10 +130,20 @@ class DataBaseOperations:
             cursor = connection.cursor()
             return cursor.execute(query).fetchall()
 
+    async def get_simple_user(self, user_id):
+        """Get a simple user from the profile"""
+
+        query = "SELECT * FROM telegram_bot_users WHERE user_id=?"
+        with self._connect_sql as connection:
+            # Fetch the results as a list of dictionaries
+            connection.row_factory = sqlite3.Row
+            cursor = connection.cursor()
+            return cursor.execute(query, (user_id,)).fetchone()
+
     async def delete_user_profile_from_db(self, user_id):
         """Delete a user from the database"""
 
-        query = """DELETE FROM telegram_bot_users WHERE user_id=(?)"""
+        query = """DELETE FROM telegram_bot_users WHERE user_id=?"""
         with self._connect_sql:
             self._cursor.execute(query, (user_id,))
             self._connect_sql.commit()
