@@ -260,7 +260,15 @@ pre_send_comment = text(
 )
 cancel_comment = text("Відправка коментаря скасована")
 add_task_comment_msg = text(
-    text("🆗 Коментар для заявки", hbold("#{}"), "додано: "),
+    text(
+        "🆗 Коментар для заявки",
+        hlink(
+            "#{title}",
+            env.str("URL_USERSIDE")
+            + "oper/journal.php?type=working&type2=show&code={code}",
+        ),
+        "додано: ",
+    ),
     hitalic({}),
     sep=newline_margin + "\n",
 )
@@ -281,3 +289,22 @@ add_task_photo_msg = text(
     hitalic({}),
     sep=newline_margin,
 )
+
+# USER MANAGER
+not_found_users = text("В системі немає жодного зареєстрованого користувача.")
+user_menu_text = text(
+    hbold("Зміна параметрів для:"),
+    "👷‍♂️ {}",
+    text(
+        hbold("Поточні параметри:"),
+        "Виконавець: {}",
+        "Чергувальник: {}",
+        sep=newline_margin,
+    ),
+    sep="\n\n",
+)
+btn_implementer = "✔️ Виконавець"
+btn_not_implementer = "➖ Не виконавець"
+btn_duty_man = "✔️ Чергувальник"
+btn_not_duty_man = "➖ Не чергувальник"
+btn_delete_user = "➰ Видалити"

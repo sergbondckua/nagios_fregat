@@ -111,7 +111,9 @@ async def send_comment(call: types.CallbackQuery, state: FSMContext):
     }
 
     if await request_processing(url, payload):
-        msg = ct.add_task_comment_msg.format(task_id, comment)
+        msg = ct.add_task_comment_msg.format(
+            comment, title=task_id, code=task_id
+        )
     else:
         msg = ct.not_found_task_id
 
