@@ -107,7 +107,7 @@ class TelnetSwitch:
         """Replace '<br>' tags with newline characters and '&nbsp;'."""
 
         replaced_br = text.replace("<br>", "\n")
-        final_text = replaced_br.replace("&nbsp;", " ")
+        final_text = replaced_br.replace("&nbsp;", " ").replace("<", "")
         return final_text
 
     async def show_mac(self) -> str:

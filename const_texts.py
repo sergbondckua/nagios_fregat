@@ -165,7 +165,7 @@ access_decsriptions = text(
 )
 
 telnet_menu_msg = text(
-    text(hbold({}) + ":", hbold({})),
+    text(hbold({}, ":", {})),
     text("Світч: ", hlink("{title}", "{url}"), "Порт: ", hbold({})),
     text("Адреса: ", hbold({})),
     text(hcode({})),
