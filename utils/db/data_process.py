@@ -28,20 +28,22 @@ class DataBaseOperations:
                     user_id INTEGER PRIMARY KEY UNIQUE,
                     username TEXT,
                     full_name TEXT,
-                    staff BOOLEAN DEFAULT false,
-                    duty BOOLEAN DEFAULT false
+                    staff BOOLEAN DEFAULT false not null,
+                    duty BOOLEAN DEFAULT false not null
                 )
             """
-        add_column_duty = """
+        add_column = """
                 ALTER TABLE telegram_bot_users
-                ADD COLUMN duty BOOLEAN DEFAULT false;
+                ADD COLUMN duty BOOLEAN DEFAULT FALSE not null;
+                ALTER TABLE telegram_bot_users
+                ADD is_duty BOOLEAN DEFAULT FALSE not null;
             """
 
         with self._connect_sql:
             self._cursor.execute(create_failed_resources_table)
             self._cursor.execute(create_telegram_bot_users_table)
             try:
-                self._cursor.execute(add_column_duty)
+                self._cursor.execute(add_column)
             except sqlite3.OperationalError as e:
                 self.logger.error(e)
             self._connect_sql.commit()
@@ -110,25 +112,25 @@ class DataBaseOperations:
                 "User %s has been updated %s successfully.", user_id, kwargs
             )
 
-    async def get_users_from_db(self, staff_only=False, duty_only=False):
+    async def get_users_from_db(self, **kwargs):
         """Retrieve users' profile information from the database"""
 
         query = "SELECT * FROM telegram_bot_users"
-        conditions = []
+        set_statements = []
+        params = []
 
-        if staff_only:
-            conditions.append("staff = 1")
-        if duty_only:
-            conditions.append("duty = 1")
-
-        if conditions:
-            query += " WHERE " + " AND ".join(conditions)
+        if kwargs:
+            for key, value in kwargs.items():
+                set_statements.append(f"{key} = ?")
+                params.append(value)
+            query += " WHERE " + " AND ".join(set_statements)
 
         with self._connect_sql as connection:
             # Fetch the results as a list of dictionaries
             connection.row_factory = sqlite3.Row
             cursor = connection.cursor()
-            return cursor.execute(query).fetchall()
+            self.logger.info("Received users: %s.", kwargs if kwargs else "ALL")
+            return cursor.execute(query, params)
 
     async def get_simple_user(self, user_id):
         """Get a simple user from the profile"""

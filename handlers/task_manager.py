@@ -87,7 +87,7 @@ async def assign_task(message: types.Message):
 async def get_relevant_users(user_id: str) -> list[dict]:
     """Get relevant users"""
 
-    users = await DataBaseOperations().get_users_from_db(staff_only=True)
+    users = await DataBaseOperations().get_users_from_db(**{"staff": True})
     relevant_users = [user for user in users if user["user_id"] != user_id]
 
     return relevant_users

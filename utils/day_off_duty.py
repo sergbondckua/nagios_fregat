@@ -10,9 +10,63 @@ class DutyScheduler:
 
     DAYS_BETWEEN_SHIFTS = 7
 
-    def __init__(self, persons: tuple):
-        self.persons = persons
+    def __init__(self):
         self.logger = logger
+        self.db = DataBaseOperations()
+
+    async def assign_duty(self):
+        """
+        Assign duty to employees in a round-robin fashion.
+
+        This function selects the next available employee for duty and updates their status.
+        It works in a round-robin manner, ensuring that each employee is assigned duty in turn.
+        """
+
+        # Select users who can be on duty
+        query_duty_users = await self.db.get_users_from_db(**{"duty": True})
+        available_duty_users = [dict(i) for i in query_duty_users]
+
+        if available_duty_users:
+            # Get the current duty user
+            query_current_duty = await self.db.get_users_from_db(
+                **{"is_duty": True}
+            )
+            current_duty_user = query_current_duty.fetchone()
+
+            if current_duty_user:
+                # Find the index of the current duty employee in the available users list
+                current_index = next(
+                    (
+                        i
+                        for i, emp in enumerate(available_duty_users)
+                        if dict(emp)["user_id"]
+                        == dict(current_duty_user)["user_id"]
+                    ),
+                    None,
+                )
+                print(current_index)
+            else:
+                current_index = -1
+
+            # Calculate the index of the next user for duty
+            next_index = (current_index + 1) % len(list(available_duty_users))
+            next_duty_user = available_duty_users[next_index]
+
+            if current_duty_user:
+                # Update the status of the current duty user
+                await self.db.update_user_to_db(
+                    current_duty_user["user_id"], **{"is_duty": False}
+                )
+
+            # Update the status of the next duty user
+            await self.db.update_user_to_db(
+                next_duty_user["user_id"], **{"is_duty": True}
+            )
+
+            return next_duty_user["full_name"]
+
+        self.logger.warning("None of the users are assigned to take turns.")
+        return None
 
     async def determine_duty_person(self, date: datetime) -> str:
         """Determine the person on duty for a given date."""
@@ -45,15 +99,10 @@ class DutyScheduler:
 
 
 async def main():
+    scheduler = DutyScheduler()
+    duty_info = await scheduler.assign_duty()
 
-    people = await DataBaseOperations().get_users_from_db(duty_only=True)
-    if people:
-        persons = tuple(dict(person).get("full_name") for person in people)
-        print(persons)
-        scheduler = DutyScheduler(persons=persons)
-        duty_info = await scheduler.get_duty_day_info("28.10.2023")
-        weekends = ", ".join(duty_info["day_off"])
-        print(duty_info["person_duty"], weekends)
+    print("Дежурство на этот выходной назначено:", duty_info)
 
 
 if __name__ == "__main__":
