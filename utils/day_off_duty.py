@@ -44,7 +44,6 @@ class DutyScheduler:
                     ),
                     None,
                 )
-                print(current_index)
             else:
                 current_index = -1
 

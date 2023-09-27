@@ -32,9 +32,11 @@ class DataBaseOperations:
                     duty BOOLEAN DEFAULT false not null
                 )
             """
-        add_column = """
+        add_column_duty = """
                 ALTER TABLE telegram_bot_users
                 ADD COLUMN duty BOOLEAN DEFAULT FALSE not null;
+            """
+        add_column_is_duty = """
                 ALTER TABLE telegram_bot_users
                 ADD is_duty BOOLEAN DEFAULT FALSE not null;
             """
@@ -43,7 +45,8 @@ class DataBaseOperations:
             self._cursor.execute(create_failed_resources_table)
             self._cursor.execute(create_telegram_bot_users_table)
             try:
-                self._cursor.execute(add_column)
+                self._cursor.execute(add_column_is_duty)
+                self._cursor.execute(add_column_duty)
             except sqlite3.OperationalError as e:
                 self.logger.error(e)
             self._connect_sql.commit()

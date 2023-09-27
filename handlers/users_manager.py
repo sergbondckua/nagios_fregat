@@ -38,7 +38,7 @@ async def get_simple_user_menu(call: types.CallbackQuery):
     duty = bool(user.get("duty"))
     is_duty = bool(user.get("is_duty"))
     staff = bool(user.get("staff"))
-    buttons = generate_buttons(user_id, staff, duty, is_duty=is_duty)
+    buttons = generate_buttons(user_id, staff, duty)
     keyboard = await make_inline_keyboard(*buttons)
     msg = ct.user_menu_text.format(
         full_name,
@@ -62,7 +62,7 @@ async def change_user_data(call: types.CallbackQuery, attribute_name: str):
     staff = bool(data.get("staff"))
     duty = bool(data.get("duty"))
     is_duty = bool(data.get("is_duty"))
-    buttons = generate_buttons(user_id, staff=staff, duty=duty, is_duty=is_duty)
+    buttons = generate_buttons(user_id, staff=staff, duty=duty)
     keyboard = await make_inline_keyboard(*buttons)
     full_name = await get_full_name(user_id)
     msg = ct.user_menu_text.format(
@@ -96,31 +96,23 @@ async def delete_user(call: types.CallbackQuery):
     await call.message.answer(f"Delete {user_id} user profile")
 
 
-def generate_buttons(user_id: str, staff: bool, duty: bool, is_duty: bool) -> tuple:
+def generate_buttons(user_id: str, staff: bool, duty: bool) -> tuple:
     """Generate buttons for the user menu."""
-
-    # Determine the is_duty button text and call based on duty and is_duty values
-    if duty:
-        is_duty_name = "Черговий" if not is_duty else "Не черговий"
-        is_duty_call = f"change_is_duty__{user_id}_1" if not is_duty else f"change_is_duty__{user_id}_0"
-    else:
-        is_duty_name, is_duty_call = "None", "None"
 
     # Create a list of buttons with their respective texts and calls
     buttons = [
         ct.btn_implementer if not staff else ct.btn_not_implementer,
-        f"change_mounter__{user_id}_1" if not staff else f"change_mounter__{user_id}_0",
+        f"change_mounter__{user_id}_1"
+        if not staff
+        else f"change_mounter__{user_id}_0",
         ct.btn_duty_man if not duty else ct.btn_not_duty_man,
-        f"change_duty__{user_id}_1" if not duty else f"change_duty__{user_id}_0",
-        is_duty_name,
-        is_duty_call,
+        f"change_duty__{user_id}_1"
+        if not duty
+        else f"change_duty__{user_id}_0",
         ct.btn_delete_user,
         f"delete__{user_id}",
         btn_close,
         "close",
     ]
-
-    # Remove "None" entries if present
-    buttons = [btn for btn in buttons if btn not in ["None", "None"]]
 
     return tuple(buttons)

@@ -56,8 +56,6 @@ async def _send_info(
     with userside() as data_fetcher:
         if data_fetcher.authenticate():
             info = await get_msg_func(data_fetcher, user_login)
-            print(info)
-
             keyboard = await make_inline_keyboard(ct.btn_close, "close")
             await call.message.answer(info, reply_markup=keyboard)
         else:
