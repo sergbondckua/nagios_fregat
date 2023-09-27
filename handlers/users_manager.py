@@ -25,7 +25,9 @@ async def get_all_users(message: types.Message):
         ]
     )
     msg = text if text else ct.not_found_users
-    await message.answer(msg, reply_markup=keyboard)
+    await message.bot.send_message(
+        message.from_user.id, msg, reply_markup=keyboard
+    )
 
 
 async def get_simple_user_menu(call: types.CallbackQuery):
