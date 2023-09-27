@@ -25,7 +25,7 @@ async def start_scheduler() -> None:
     scheduler.add_job(
         func=set_and_notify_duty,
         trigger="cron",
-        minute=37,
+        minute=40,
         hour=20,
         day_of_week="mon, wed",
     )
