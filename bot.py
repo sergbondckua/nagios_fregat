@@ -134,7 +134,7 @@ async def on_start(dispatcher) -> None:
     await DataBaseOperations().create_tables()
 
     # Set locale
-    # await set_locale(env.str("LOCALE"))
+    await set_locale(env.str("LOCALE"))
 
     # Start schedule
     await start_scheduler()
