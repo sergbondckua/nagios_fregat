@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime, timedelta
 
 from utils.db.data_process import DataBaseOperations
@@ -62,7 +61,7 @@ class DutyScheduler:
                 next_duty_user["user_id"], **{"is_duty": True}
             )
 
-            return next_duty_user["full_name"]
+            return next_duty_user
 
         self.logger.warning("None of the users are assigned to take turns.")
         return None
@@ -88,21 +87,15 @@ class DutyScheduler:
         start_of_week = parsed_date - timedelta(days=day_of_week)
         saturday = start_of_week + timedelta(days=5)
         sunday = start_of_week + timedelta(days=6)
-        person_name = await self.determine_duty_person(saturday)
+        person_name = await self.assign_duty()
         weekend = [
             day.strftime("%A: %d %B %Y").title() for day in (saturday, sunday)
         ]
 
-        result = {"day_off": weekend, "person_duty": person_name}
+        result = (
+            {"user_duty": person_name, "weekend": weekend}
+            if person_name
+            else None
+        )
+
         return result
-
-
-async def main():
-    scheduler = DutyScheduler()
-    duty_info = await scheduler.assign_duty()
-
-    print("Дежурство на этот выходной назначено:", duty_info)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
