@@ -61,6 +61,7 @@ class DutyScheduler:
                 next_duty_user["user_id"], **{"is_duty": True}
             )
 
+            self.logger.info("Next duty user: %s", next_duty_user)
             return next_duty_user
 
         self.logger.warning("None of the users are assigned to take turns.")
@@ -77,7 +78,8 @@ class DutyScheduler:
         )
         return self.persons[person_index]
 
-    async def get_duty_day_info(self, date=None):
+    @staticmethod
+    async def get_duty_day_info(date=None):
         """Get duty day information for a specific date or the current date."""
 
         parsed_date = (
@@ -87,15 +89,8 @@ class DutyScheduler:
         start_of_week = parsed_date - timedelta(days=day_of_week)
         saturday = start_of_week + timedelta(days=5)
         sunday = start_of_week + timedelta(days=6)
-        person_name = await self.assign_duty()
         weekend = [
             day.strftime("%A: %d %B %Y").title() for day in (saturday, sunday)
         ]
 
-        result = (
-            {"user_duty": person_name, "weekend": weekend}
-            if person_name
-            else None
-        )
-
-        return result
+        return weekend

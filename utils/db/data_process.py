@@ -43,14 +43,14 @@ class DataBaseOperations:
 
         query = """
                 INSERT OR IGNORE INTO telegram_bot_users
-                (user_id, username, full_name, staff)
-                VALUES (?,?,?,?)
+                (user_id, username, full_name)
+                VALUES (?,?,?)
             """
 
         with self._connect_sql:
             self._cursor.execute(
                 query,
-                (user_data.id, user_data.username, user_data.full_name, False),
+                (user_data.id, user_data.username, user_data.full_name),
             )
             self._connect_sql.commit()
 

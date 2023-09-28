@@ -1,6 +1,7 @@
 from aiogram import executor
 from aiogram.types import ContentTypes
 
+from apsched.duty import notify_duty
 from apsched.jobs import start_scheduler
 from handlers.attach_photo import (
     upload_task_photo,
@@ -23,7 +24,7 @@ from handlers.users_manager import (
     change_user_staff,
     delete_user,
 )
-from handlers.who_is_duty import who_is_duty
+
 from loader import dp, env
 from state.attach import AttachFile
 from state.comment import AddComment
@@ -63,7 +64,7 @@ dp.register_message_handler(assign_task, regexp=r"#\d+")
 dp.register_message_handler(get_ref, commands=["ref"])
 dp.register_message_handler(cmd_info_id, commands=["myid"])
 dp.register_message_handler(get_all_users, commands=["all_users"])
-dp.register_message_handler(who_is_duty, commands=["who_duty", "duty"])
+dp.register_message_handler(notify_duty, commands=["who_duty", "duty"])
 dp.register_message_handler(
     add_task_comment, commands=["add_cmt", "add_comment"]
 )

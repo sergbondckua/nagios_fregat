@@ -315,7 +315,7 @@ not_found_duty_users = text("Чергувальників не назначен�
 msg_duty_chat = text(
     text("🚧", hbold("Чергування на цих вихідних:")),
     {},
-    text("⛑ {}", "@{}", sep=newline_margin,),
+    text(hbold("⛑ Черговий:"), "{}, @{}", sep=newline_margin),
     sep="\n\n",
 )
 msg_duty_user = text(
