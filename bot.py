@@ -45,6 +45,7 @@ from handlers.credentials import (
     send_balance,
     send_blank,
     send_session,
+    send_unblock_inet,
 )
 from handlers.usersider import (
     send_access_device,
@@ -83,6 +84,7 @@ dp.register_message_handler(
 dp.register_callback_query_handler(send_blank, text_contains="blank")
 dp.register_callback_query_handler(send_session, text_contains="session")
 dp.register_callback_query_handler(send_balance, text_contains="balance")
+dp.register_callback_query_handler(send_unblock_inet, text_contains="unblock")
 dp.register_callback_query_handler(send_access_device, text_contains="access")
 dp.register_callback_query_handler(telnet_menu, text_contains="telnet")
 dp.register_callback_query_handler(show_mac_port, text_contains="show_mac")

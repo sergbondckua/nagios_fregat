@@ -1,3 +1,4 @@
+import asyncio
 import urllib.parse
 
 from aiohttp import ClientSession, ClientTimeout, TCPConnector
@@ -247,8 +248,31 @@ class BillingUserData:
 
         return user_data
 
+    async def unblock_profile_internet(self, url_profile):
+        """Unblock the profile Internet."""
+
+        params = {"action": "non_block_3"}
+        html = await self._fetch_data(url_profile, params)
+        soup = BeautifulSoup(html, "lxml")
+        response = soup.find("div", class_="text").get_text()
+
+        return response
+
     async def close_session(self) -> None:
         """Close the ClientSession if it is active."""
 
         if self.session:
             await self.session.close()
+
+
+async def main():
+    bill = BillingUserData("https://info.fregat.net", "atamas", "300791n")
+    url = await bill.unblock_profile_internet(
+        "https://info.fregat.net/cgi-bin/adm/adm.pl?&a=user&acct_id=739279&int_id=449723&it=internet"
+    )
+    await bill.close_session()
+    print(url)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

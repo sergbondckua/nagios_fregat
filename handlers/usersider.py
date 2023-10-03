@@ -40,7 +40,7 @@ async def telnet_menu(call: types.CallbackQuery):
         (ct.btn_close, "close"),
     ]
     msg = ct.telnet_menu_diagnostics.format(user_login)
-    keyboard = await make_inline_keyboard(*sum(buttons, ()), row_width=1)
+    keyboard = await make_inline_keyboard(*sum(buttons, ()))
     await call.message.answer(msg, reply_markup=keyboard)
 
 

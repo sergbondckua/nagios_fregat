@@ -79,7 +79,7 @@ async def pre_send_comment(message: types.Message, state: FSMContext):
             "approve_send",
             ct.btn_cancel_comment,
             "cancel_comment",
-            row_width=2,
+            row_widths=[2],
         ),
     )
 

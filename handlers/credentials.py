@@ -56,7 +56,9 @@ async def process_users_query(message: types.Message):
         users_data.append(user_info)
 
     users_data_text = "\n\n".join(
-        ct.results_response_users.format(num, address, full_name, title=login, url=url)
+        ct.results_response_users.format(
+            num, address, full_name, title=login, url=url
+        )
         for num, login, address, full_name, url in users_data
     )
     msg = ct.response_users_text.format(user_query, users_data_text)
@@ -77,12 +79,15 @@ async def display_user_profile_menu(call: types.CallbackQuery):
         (ct.btn_sessions, f"session__{user_login}"),
         (ct.btn_balance, f"balance__{user_login}"),
         (ct.btn_blank, f"blank__{user_login}"),
+        (ct.btn_unblock_inet, f"unblock__{user_login}"),
         (ct.btn_access, f"access__{user_login}"),
         (ct.btn_diagnosis, f"telnet__{user_login}"),
         (ct.btn_close, "close"),
     ]
 
-    keyboard = await make_inline_keyboard(*sum(buttons, ()))
+    keyboard = await make_inline_keyboard(
+        *sum(buttons, ()), row_widths=[2, 1, 1, 2, 1]
+    )
     logger.info("%s profile has been accessed", user_login)
 
     await call.message.answer(msg, reply_markup=keyboard)
@@ -104,6 +109,12 @@ async def send_balance(call: types.CallbackQuery):
     """Send user balance information."""
 
     await _send_user_info(call, _get_balance_msg)
+
+
+async def send_unblock_inet(call: types.CallbackQuery):
+    """Unblock an Internet connection"""
+
+    await _send_user_info(call, _send_unblock_inet_msg)
 
 
 async def close(call: types.CallbackQuery):
@@ -169,7 +180,9 @@ async def _get_session_msg(bill: BillingUserData, link: str) -> str:
 
             if len(time_str) > 5:
                 return datetime.strptime(time_str, "%d.%m.%y %H:%M")
-            return datetime.strptime(f"{current_date} {time_str}", "%d.%m.%y %H:%M")
+            return datetime.strptime(
+                f"{current_date} {time_str}", "%d.%m.%y %H:%M"
+            )
 
         start_time = parse_time(start_time_str)
 
@@ -194,3 +207,8 @@ async def _get_session_msg(bill: BillingUserData, link: str) -> str:
     msg = "\n\n".join(formatted_sessions)
 
     return msg if msg else ct.not_found_session
+
+
+async def _send_unblock_inet_msg(bill: BillingUserData, link: str) -> str:
+    """Response from the server to send unblock message"""
+    return await bill.unblock_profile_internet(link)
