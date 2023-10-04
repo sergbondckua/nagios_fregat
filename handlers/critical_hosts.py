@@ -23,7 +23,7 @@ async def send_critical_hosts(message: types.Message):
             "details",
             ct.btn_close,
             "close",
-            row_width=2,
+            row_widths=[2],
         )
 
         await send_message_with_retry(
