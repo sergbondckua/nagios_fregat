@@ -55,6 +55,8 @@ async def start_add_task_comment(call: types.CallbackQuery, state: FSMContext):
         data["task_id"] = task_id
         data["msg_id"] = msg.message_id
 
+    await call.answer()
+
 
 async def pre_send_comment(message: types.Message, state: FSMContext):
     """Prepare to send a comment"""

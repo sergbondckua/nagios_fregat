@@ -91,6 +91,7 @@ async def display_user_profile_menu(call: types.CallbackQuery):
     logger.info("%s profile has been accessed", user_login)
 
     await call.message.answer(msg, reply_markup=keyboard)
+    await call.answer()
 
 
 async def send_blank(call: types.CallbackQuery):
@@ -144,6 +145,7 @@ async def _send_user_info(
 
     keyboard = await make_inline_keyboard(ct.btn_close, "close")
     await call.message.answer(info, reply_markup=keyboard)
+    await call.answer()
 
 
 async def _get_blank_msg(bill: BillingUserData, link: str) -> str:

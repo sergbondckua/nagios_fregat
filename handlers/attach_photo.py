@@ -27,6 +27,7 @@ async def start_attach_task_photo(call: types.CallbackQuery, state: FSMContext):
         data["code"] = code
 
     await AttachFile.add_file.set()
+    await call.answer()
 
 
 async def cancel_send(call: types.CallbackQuery, state: FSMContext):

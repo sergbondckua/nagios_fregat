@@ -49,6 +49,7 @@ async def get_simple_user_menu(call: types.CallbackQuery):
         "✔️" if is_duty else "➖",
     )
     await call.message.answer(msg, reply_markup=keyboard)
+    await call.answer()
 
 
 async def change_user_data(call: types.CallbackQuery, attribute_name: str):

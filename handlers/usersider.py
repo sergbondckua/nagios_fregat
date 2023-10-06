@@ -42,6 +42,7 @@ async def telnet_menu(call: types.CallbackQuery):
     msg = ct.telnet_menu_diagnostics.format(user_login)
     keyboard = await make_inline_keyboard(*sum(buttons, ()))
     await call.message.answer(msg, reply_markup=keyboard)
+    await call.answer()
 
 
 async def _send_info(
@@ -58,6 +59,7 @@ async def _send_info(
             info = await get_msg_func(data_fetcher, user_login)
             keyboard = await make_inline_keyboard(ct.btn_close, "close")
             await call.message.answer(info, reply_markup=keyboard)
+            await call.answer()
         else:
             await call.message.answer(ct.not_authorized_userside)
 
