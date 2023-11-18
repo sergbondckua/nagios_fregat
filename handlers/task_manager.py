@@ -9,7 +9,11 @@ from loader import bot
 from utils.api_userside.api import ApiUsersideData
 from utils.db.data_process import DataBaseOperations
 from utils.keyboards import make_inline_keyboard
-from utils.misc import remove_html_tags
+from utils.misc import (
+    remove_html_tags,
+    find_phone_number,
+    replacing_phone_numbers_in_text,
+)
 
 
 async def get_full_name(user_id: int) -> str:
@@ -128,16 +132,19 @@ async def send_task(call: types.CallbackQuery):
     task_type_name = task_data["type"].get("name")
     customer_full_name = task_data["customer"].get("fullName")
     customer_login = task_data["customer"].get("login")
+    login = f"/ab chk_{customer_login}" if customer_login else "➖"
     address_text = task_data["address"].get("text")
     description = await remove_html_tags(task_data["description"])
+    phones_in_desc = await find_phone_number(description)
+    text = await replacing_phone_numbers_in_text(description, phones_in_desc)
 
     msg = ct.send_task_msg.format(
         task_id,
         task_type_name,
         customer_full_name,
-        customer_login,
+        login,
         address_text,
-        description,
+        text,
         task_id,
     )
 

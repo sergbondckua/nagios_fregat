@@ -196,7 +196,7 @@ send_task_msg = text(
     text(
         "👤 Абонент:",
         hbold({}),
-        hcode("/ab chk_{}"),
+        hcode({}),
         sep=newline_margin,
     ),
     text(

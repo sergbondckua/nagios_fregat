@@ -190,3 +190,53 @@ async def set_locale(language: str = None) -> None:
     except locale.Error as e:
         locale.setlocale(locale.LC_ALL, default_language)
         logger.error("Invalid or unsupported language: %s", e)
+
+
+async def find_phone_number(text: str) -> list:
+    """The function accepts text and finds phone numbers in the text"""
+    phone_numbers = re.findall(
+        r"(?:(?:\+|0{1,2})\d{1,3}[- ]?)?(?:\(\d{1,4}\)|\d{2,3})[- ]?\d{3}[- ]?\d{2,3}[- ]?\d{2,3}",
+        text,
+    )
+    return phone_numbers
+
+
+async def format_phone_numbers(phone: str) -> str:
+    """
+    The function accepts phone and formats them to standard +380XXXXXXXXX.
+
+    Args:
+    - phone (str): Text phone numbers.
+
+    Returns:
+    - str: Phone numbers in the format +380XXXXXXXXX.
+    """
+    if phone.startswith("+") and len(phone) == 13:
+        return phone
+
+    digits = re.sub(r"\D", "", phone)  # remove all characters except numbers
+    formatted_phone = "+380" + digits[-9:]
+
+    return formatted_phone
+
+
+async def replacing_phone_numbers_in_text(
+    text: str, phone_numbers: list[str]
+) -> str:
+    """
+    Replaces phone numbers in the text with their formatted counterparts.
+
+    Args:
+        - text (str): The input text where phone numbers will be replaced.
+        - phone_numbers (list[str]): List of phone numbers to replace in the text.
+
+    Returns:
+        str: The text with replaced phone numbers.
+    """
+    if phone_numbers:
+        formatted_phone_number = [
+            await format_phone_numbers(phone) for phone in phone_numbers
+        ]
+        for old_phone, new_phone in zip(phone_numbers, formatted_phone_number):
+            text = text.replace(old_phone, new_phone)
+    return text
