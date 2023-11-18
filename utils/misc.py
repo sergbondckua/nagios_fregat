@@ -27,9 +27,9 @@ async def is_user_member(chat_id, user_id):
 
 def require_group_membership(allowed_chat_ids: list[int] = None):
     if allowed_chat_ids is None:
-        allowed_chat_ids = [env.int("CHAT_SUPPORT_ID")]
+        allowed_chat_ids = env.list("CHAT_SUPPORT_ID")
     else:
-        allowed_chat_ids += [env.int("CHAT_SUPPORT_ID")]
+        allowed_chat_ids += env.list("CHAT_SUPPORT_ID")
 
     def decorator(func):
         @wraps(func)
