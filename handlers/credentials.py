@@ -5,13 +5,14 @@ from datetime import datetime
 from aiogram import types
 
 import const_texts as ct
+from loader import env
 from utils.billing import BillingUserData
 from utils.keyboards import make_inline_keyboard
 from utils.log import logger
 from utils.misc import billing, require_group_membership
 
 
-@require_group_membership()
+@require_group_membership(env.list("ALLOWED_CHAT_IDS"))
 async def process_users_query(message: types.Message):
     """Processing a request for a list of users.
 

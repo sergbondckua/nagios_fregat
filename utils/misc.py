@@ -25,18 +25,24 @@ async def is_user_member(chat_id, user_id):
         return False
 
 
-def require_group_membership(group_id: int = env.int("CHAT_SUPPORT_ID")):
+def require_group_membership(allowed_chat_ids: list[int] = None):
+    if allowed_chat_ids is None:
+        allowed_chat_ids = [env.int("CHAT_SUPPORT_ID")]
+    else:
+        allowed_chat_ids += [env.int("CHAT_SUPPORT_ID")]
+
     def decorator(func):
         @wraps(func)
         async def wrapped(message: types.Message, *args, **kwargs):
             user_id = message.from_user.id
-
-            if await is_user_member(group_id, user_id):
-                return await func(message, *args, **kwargs)
+            for chat_id in allowed_chat_ids:
+                if await is_user_member(chat_id, user_id):
+                    return await func(message, *args, **kwargs)
             logger.info(
-                "Access is denied. User %s is not a member of group %s",
+                "Access is denied. "
+                "User %s is not in ALLOWED_CHAT_IDS or CHAT_SUPPORT_ID %s",
                 user_id,
-                group_id,
+                allowed_chat_ids,
             )
             await message.answer(
                 ct.require_group_member_text.format(message.from_user.full_name)
