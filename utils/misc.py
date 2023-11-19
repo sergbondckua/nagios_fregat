@@ -218,7 +218,7 @@ async def format_phone_numbers(phone: str) -> str:
     - str: Phone numbers in the format +380XXXXXXXXX.
     """
     if phone.startswith("+") and len(phone) >= 13:
-        return phone
+        return f"📱 {phone}"
 
     digits = re.sub(r"\D", "", phone)  # remove all characters except numbers
     formatted_phone = f"☎ +380{digits[-9:]}"
