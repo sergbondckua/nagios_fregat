@@ -221,28 +221,28 @@ async def format_phone_numbers(phone: str) -> str:
         return phone
 
     digits = re.sub(r"\D", "", phone)  # remove all characters except numbers
-    formatted_phone = "+380" + digits[-9:]
+    formatted_phone = f"☎ +380{digits[-9:]}"
 
     return formatted_phone
 
 
-async def replacing_phone_numbers_in_text(
-    text: str, phone_numbers: list[str]
-) -> str:
+async def replacing_phone_numbers_in_text(text: str) -> str:
     """
     Replaces phone numbers in the text with their formatted counterparts.
 
     Args:
         - text (str): The input text where phone numbers will be replaced.
-        - phone_numbers (list[str]): List of phone numbers to replace in the text.
 
     Returns:
         str: The text with replaced phone numbers.
     """
-    if phone_numbers:
+
+    if phone_numbers := await find_phone_number(text):
         formatted_phone_number = [
             await format_phone_numbers(phone) for phone in phone_numbers
         ]
+
         for old_phone, new_phone in zip(phone_numbers, formatted_phone_number):
             text = text.replace(old_phone, new_phone)
+
     return text
