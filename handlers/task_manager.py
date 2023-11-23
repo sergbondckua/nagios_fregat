@@ -109,6 +109,7 @@ async def create_assignment_buttons(
     return assignment_buttons
 
 
+@require_group_membership(env.list("ALLOWED_CHAT_IDS"))
 async def send_task(call: types.CallbackQuery):
     await call.message.answer_chat_action(action=types.ChatActions.TYPING)
 
