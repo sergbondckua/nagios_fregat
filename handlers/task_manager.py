@@ -9,7 +9,7 @@ from loader import bot
 from utils.api_userside.api import ApiUsersideData
 from utils.db.data_process import DataBaseOperations
 from utils.keyboards import make_inline_keyboard
-from utils.misc import remove_html_tags, replacing_phone_numbers_in_text
+from utils.misc import remove_html_tags, replacing_phone_numbers_in_text, require_group_membership
 
 
 async def get_full_name(user_id: int) -> str:
