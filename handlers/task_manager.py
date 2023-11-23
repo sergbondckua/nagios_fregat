@@ -37,6 +37,7 @@ async def get_customer_details(customer_id: str) -> dict:
     return customer_api.get("Data")
 
 
+@require_group_membership(env.list("ALLOWED_CHAT_IDS"))
 async def assign_task(message: types.Message):
     """
     Handle the assignment of a task to users or groups.
@@ -109,7 +110,6 @@ async def create_assignment_buttons(
     return assignment_buttons
 
 
-@require_group_membership(env.list("ALLOWED_CHAT_IDS"))
 async def send_task(call: types.CallbackQuery):
     await call.message.answer_chat_action(action=types.ChatActions.TYPING)
 
