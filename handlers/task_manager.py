@@ -5,7 +5,7 @@ import re
 import aiogram
 from aiogram import types
 import const_texts as ct
-from loader import bot
+from loader import bot, env
 from utils.api_userside.api import ApiUsersideData
 from utils.db.data_process import DataBaseOperations
 from utils.keyboards import make_inline_keyboard
