@@ -103,7 +103,12 @@ credentials_detail = text(
 )
 sessions_text = text(
     hbold("{} － {}"),
-    text(hcode({}), "{}", hcode({}), sep=newline_margin),
+    text(
+        hcode({}),
+        hcode({}),
+        hlink("{mac}", "https://api.macvendors.com/{url}"),
+        sep=newline_margin,
+    ),
     sep=newline_margin,
 )
 not_found_session = text("За 3 останні місяці сесій не знайдено.")

@@ -203,7 +203,12 @@ async def _get_session_msg(bill: BillingUserData, link: str) -> str:
 
     formatted_sessions = [
         ct.sessions_text.format(
-            x["start"], x["end"], x["duration"], x["ip"], x["mac"]
+            x["start"],
+            x["end"],
+            x["duration"],
+            x["ip"],
+            mac=x["mac"],
+            url=x["mac"],
         )
         for x in sessions
     ]
