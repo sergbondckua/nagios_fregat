@@ -211,6 +211,11 @@ send_task_msg = text(
         sep=newline_margin,
     ),
     text(
+        "🔑 Ключ:",
+        hbold({}),
+        sep=newline_margin,
+    ),
+    text(
         text("✏️", hbold("Завдання:")),
         {},
         sep="\n" + newline_margin,

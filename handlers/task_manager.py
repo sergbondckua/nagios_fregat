@@ -6,10 +6,16 @@ import aiogram
 from aiogram import types
 import const_texts as ct
 from loader import bot, env
+from utils.api_search_keys import CellSearchAPI
 from utils.api_userside.api import ApiUsersideData
 from utils.db.data_process import DataBaseOperations
 from utils.keyboards import make_inline_keyboard
-from utils.misc import remove_html_tags, replacing_phone_numbers_in_text, require_group_membership
+from utils.misc import (
+    remove_html_tags,
+    replacing_phone_numbers_in_text,
+    require_group_membership,
+    parse_address,
+)
 
 
 async def get_full_name(user_id: int) -> str:
@@ -133,6 +139,23 @@ async def send_task(call: types.CallbackQuery):
     address_text = task_data["address"].get("text")
     description = await remove_html_tags(task_data["description"])
     text = await replacing_phone_numbers_in_text(description)
+    parse = parse_address(address_text)
+    street_name = parse.get("street")
+    street_prefix = parse.get("prefix")
+    building_number = parse.get("building_number")
+    cell_api = CellSearchAPI()
+
+    try:
+        street_id = await cell_api.get_street_id(street_name, street_prefix)
+        cell_info = await cell_api.get_cell_keys(street_id, building_number)
+    finally:
+        await cell_api.close_session()
+
+    cell = (
+        f"{cell_info.get('title')}({cell_info.get('box')})"
+        if cell_info
+        else "➖"
+    )
 
     msg = ct.send_task_msg.format(
         task_id,
@@ -140,6 +163,7 @@ async def send_task(call: types.CallbackQuery):
         customer_full_name,
         login,
         address_text,
+        cell,
         text,
         task_id,
     )

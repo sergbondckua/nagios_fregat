@@ -246,3 +246,31 @@ async def replacing_phone_numbers_in_text(text: str) -> str:
             text = text.replace(old_phone, new_phone)
 
     return text
+
+
+def parse_address(address: str) -> dict:
+    """
+    Parses an address string and returns a dictionary with the parts separated.
+
+    :param address: Address line in the format "City, Street (vul.), House number"
+    :return: Dictionary with parts of the address (city, street, name, prefix, house number)
+    """
+
+    # Splitting a string into parts
+    parts = address.split(", ")
+
+    # assigning variables to appropriate values
+    city = parts[0].strip()
+    location = parts[1].strip()
+    name = location.split(" (")[0].split(" ")[0].strip()
+    prefix = location.split(" ")[-1][1:-1]
+    building_number = parts[2].split(" ")[0].strip()
+    result = {
+        "city": city,
+        "street": name,
+        "prefix": prefix,
+        "building_number": building_number,
+    }
+    print(result)
+    # Returning results as a dictionary
+    return result
