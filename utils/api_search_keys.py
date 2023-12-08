@@ -16,7 +16,7 @@ class CellSearchAPI:
     def __init__(self):
         self.session = aiohttp.ClientSession()
 
-    async def fetch_data(self, endpoint: str, params: dict) -> dict | None:
+    async def fetch_data(self, endpoint: str, params: dict) -> dict:
         """Fetch data from the API using aiohttp."""
         url = f"{self.BASE_URL}{endpoint}"
         async with self.session.get(url, params=params) as response:
@@ -25,13 +25,13 @@ class CellSearchAPI:
                 return await response.json()
             except aiohttp.ClientResponseError as e:
                 print(f"Error fetching data from {url}: {e}")
-                return None
 
     async def get_street_id(self, street_name: str, street_prefix: str) -> str:
         """Get the street ID based on its name and prefix."""
         params = {"name": street_name, "prefix": street_prefix}
         street_info = await self.fetch_data(self.STREET_ENDPOINT, params)
-        return street_info.get("id") if street_info else None
+        street_id = street_info.get("id") if street_info else None
+        return street_id
 
     async def get_cell_keys(self, street_id, building_number) -> dict:
         """Get cell keys based on street ID and building number."""
