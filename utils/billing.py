@@ -1,4 +1,3 @@
-import asyncio
 import urllib.parse
 
 from aiohttp import ClientSession, ClientTimeout, TCPConnector
@@ -29,7 +28,9 @@ class BillingUserData:
         """Async context manager entry point."""
 
         self.session = ClientSession(
-            timeout=self.timeout, connector=self.connector, headers=self.headers
+            timeout=self.timeout,
+            connector=self.connector,
+            headers=self.headers,
         )
         return self
 
@@ -129,7 +130,9 @@ class BillingUserData:
         Returns:
             list[dict[str, str]]: A list of dictionaries containing user data.
         """
-        url_encoded_full_name = urllib.parse.quote(full_name, encoding="cp1251")
+        url_encoded_full_name = urllib.parse.quote(
+            full_name, encoding="cp1251"
+        )
         params = {"a": "listuser", "fio": url_encoded_full_name}
 
         return await self.find_user_data(params)
@@ -263,16 +266,3 @@ class BillingUserData:
 
         if self.session:
             await self.session.close()
-
-
-async def main():
-    bill = BillingUserData("https://info.fregat.net", "atamas", "300791n")
-    url = await bill.unblock_profile_internet(
-        "https://info.fregat.net/cgi-bin/adm/adm.pl?&a=user&acct_id=739279&int_id=449723&it=internet"
-    )
-    await bill.close_session()
-    print(url)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
