@@ -1,8 +1,9 @@
-import asyncio
 import re
 import urllib.parse
+
 from aiohttp import ClientSession, ClientTimeout, TCPConnector
 from bs4 import BeautifulSoup
+
 from loader import env
 
 
