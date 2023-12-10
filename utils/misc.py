@@ -55,7 +55,7 @@ def require_group_membership(allowed_chat_ids: list[int] = None):
     return decorator
 
 
-def is_night_time():
+def is_night_time() -> bool:
     """
     Checks if the current time is within the night hours.
 
@@ -280,9 +280,8 @@ def parse_address(address: str) -> dict | None:
     prefix = location.split(" ")[-1][1:-1].strip()
 
     # Extracting building number
-    number = extract_number(number_part.split(" ")[0])
+    building_number = extract_number(number_part.split(" ")[0])
 
-    building_number = extract_number(number)
     result = {
         "city": city,
         "street": name,
