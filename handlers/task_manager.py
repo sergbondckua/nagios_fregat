@@ -140,6 +140,7 @@ async def send_task(call: types.CallbackQuery):
     description = await remove_html_tags(task_data["description"])
     text = await replacing_phone_numbers_in_text(description)
     parse = parse_address(address_text)
+    cell = "➖"
 
     if parse is not None:
         street_name = parse.get("street")
@@ -150,16 +151,13 @@ async def send_task(call: types.CallbackQuery):
         try:
             street_id = await cell_api.get_street_id(street_name, street_prefix)
             cell_info = await cell_api.get_cell_keys(street_id, building_number)
+        except TypeError:
+            cell_info = None
         finally:
             await cell_api.close_session()
 
-        cell = (
-            f"{cell_info.get('title')}({cell_info.get('box')})"
-            if cell_info
-            else "➖"
-        )
-    else:
-        cell = "➖"
+        if cell_info:
+            cell = f"{cell_info.get('title')}({cell_info.get('box')})"
 
     msg = ct.send_task_msg.format(
         task_id,
