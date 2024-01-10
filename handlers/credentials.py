@@ -113,6 +113,7 @@ async def send_balance(call: types.CallbackQuery):
     await _send_user_info(call, _get_balance_msg)
 
 
+@require_group_membership()
 async def send_unblock_inet(call: types.CallbackQuery):
     """Unblock an Internet connection"""
 

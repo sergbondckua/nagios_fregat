@@ -5,7 +5,7 @@ from aiogram import types
 
 import const_texts as ct
 from utils.keyboards import make_inline_keyboard
-from utils.misc import userside
+from utils.misc import userside, require_group_membership
 from utils.telnet_switch import TelnetSwitch
 from utils.userside import UsersideWebDataFetcher
 
@@ -28,6 +28,7 @@ async def cable_test(call: types.CallbackQuery):
     await _send_info(call, _cable_test_msg)
 
 
+@require_group_membership()
 async def telnet_menu(call: types.CallbackQuery):
     """Display a menu for Telnet port options based on user's login."""
 
@@ -64,7 +65,9 @@ async def _send_info(
             await call.message.answer(ct.not_authorized_userside)
 
 
-async def _get_access_device_msg(data: UsersideWebDataFetcher, user_login: str):
+async def _get_access_device_msg(
+    data: UsersideWebDataFetcher, user_login: str
+):
     """Gets information about the device to which the user is connected"""
 
     switch_data = data.get_switch_info(user_login)
