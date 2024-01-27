@@ -45,9 +45,7 @@ def require_group_membership(allowed_chat_ids: list[int] = None):
                 allowed_chat_ids,
             )
             await message.answer(
-                ct.require_group_member_text.format(
-                    message.from_user.full_name
-                )
+                ct.require_group_member_text.format(message.from_user.full_name)
             )
 
         return wrapped
@@ -267,17 +265,31 @@ def parse_address(address: str) -> dict | None:
         alphanumeric characters from the input string.
         """
         match = re.search(r"\b(\d+(?:/\d+)?\w?)\b", number_string)
-        if match:
-            return match.group(1)
-        else:
-            return None
+        return match.group(1) if match else None
+
+    def extract_street_info(location_str: str) -> tuple[str, str]:
+        """
+        Extracts street name and prefix from the location string.
+        """
+        location_parts = location_str.split(" (")
+        street_parts = location_parts[0].split(" &#047; ")
+        street_name = (
+            street_parts[1].strip()
+            if len(street_parts) > 1
+            else street_parts[0].strip()
+        )
+        street_prefix = (
+            location_parts[-1][1:-1].strip()
+            if location_parts[-1].endswith(")")
+            else ""
+        )
+        return street_name, street_prefix
 
     # Splitting a string into parts
     city, location, number_part = map(str.strip, address.split(", "))
 
     # Extracting street name and prefix
-    name = location.split(" (")[0].split(" &#047; ")[1].strip()
-    prefix = location.split(" ")[-1][1:-1].strip()
+    name, prefix = extract_street_info(location)
 
     # Extracting building number
     building_number = extract_number(number_part.split(" ")[0])
