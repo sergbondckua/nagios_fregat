@@ -279,7 +279,7 @@ def parse_address(address: str) -> dict | None:
             else street_parts[0].strip()
         )
         street_prefix = (
-            location_parts[-1][1:-1].strip()
+            location_parts[-1][:-1].strip()
             if location_parts[-1].endswith(")")
             else ""
         )
