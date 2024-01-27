@@ -276,7 +276,7 @@ def parse_address(address: str) -> dict | None:
     city, location, number_part = map(str.strip, address.split(", "))
 
     # Extracting street name and prefix
-    name = location.split(" (")[0].split(" &#047; ")[0].strip()
+    name = location.split(" (")[0].split(" &#047; ")[1].strip()
     prefix = location.split(" ")[-1][1:-1].strip()
 
     # Extracting building number
