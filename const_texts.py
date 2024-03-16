@@ -106,7 +106,7 @@ sessions_text = text(
     text(
         hcode({}),
         hcode({}),
-        hlink("{mac}", "https://api.macvendors.com/{url}"),
+        text(hlink("{mac}", "https://api.macvendors.com/{url}"), text("({})")),
         sep=newline_margin,
     ),
     sep=newline_margin,

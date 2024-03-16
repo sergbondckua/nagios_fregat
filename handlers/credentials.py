@@ -9,6 +9,7 @@ from loader import env
 from utils.billing import BillingUserData
 from utils.keyboards import make_inline_keyboard
 from utils.log import logger
+from utils.mac_vendor import add_company_name_to_mac_data
 from utils.misc import billing, require_group_membership
 
 
@@ -202,12 +203,16 @@ async def _get_session_msg(bill: BillingUserData, link: str) -> str:
     for session in sessions:
         parse_session_time(session)
 
+    # Add mac_address company to session_data
+    await add_company_name_to_mac_data(sessions)
+
     formatted_sessions = [
         ct.sessions_text.format(
             x["start"],
             x["end"],
             x["duration"],
             x["ip"],
+            x["mac_company_name"],
             mac=x["mac"],
             url=x["mac"],
         )
