@@ -29,7 +29,8 @@ class DataBaseOperations:
                     username TEXT,
                     full_name TEXT,
                     staff BOOLEAN DEFAULT false not null,
-                    duty BOOLEAN DEFAULT false not null
+                    duty BOOLEAN DEFAULT false not null,
+                    is_duty BOOLEAN DEFAULT false not null
                 )
             """
 
