@@ -41,12 +41,20 @@ async def process_users_query(message: types.Message):
 
     for num, user in enumerate(users):
         status_session = ""
+        access = ""
+
+        balance = float(user["balance_with"])
+
         if not user["date"]:
-            status_session = " 🟢"
-            if float(user["balance_with"]) < 0:
+            if balance > 0:
+                status_session = " 🟢"
+            elif balance < 0:
                 status_session = " 🟡"
 
-        user_status_session = f"{user['login']}{status_session}"
+        if balance < 0:
+            access = " 🚫"
+
+        user_status_session = f"{user['login']}{status_session}{access}"
         buttons.append((user_status_session, f"profile__{user['login']}"))
         user_info = (
             num + 1,
