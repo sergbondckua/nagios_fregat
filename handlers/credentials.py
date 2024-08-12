@@ -46,7 +46,7 @@ async def process_users_query(message: types.Message):
         balance = float(user["balance_with"])
 
         if not user["date"]:
-            if balance > 0:
+            if balance >= 0:
                 status_session = " 🟢"
             elif balance < 0:
                 status_session = " 🟡"
