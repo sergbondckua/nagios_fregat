@@ -1,15 +1,16 @@
 from __future__ import annotations
 import aiohttp
-import urllib.parse
 
 from loader import env
 from utils.log import logger
 
 
 class CellSearchAPI:
-    """API for searching for cells"""
+    """API для пошуку вулиць та ключів клітин."""
 
-    BASE_URL = env.str("URL_SEARCH_KEY")
+    BASE_URL = env.str(
+        "URL_SEARCH_KEY"
+    )  # Наприклад: "http://internal_service_platform:8001/api/v1/"
     STREET_ENDPOINT = "street"
     CELL_ENDPOINT = "cell"
 
@@ -17,47 +18,51 @@ class CellSearchAPI:
         self.session = aiohttp.ClientSession()
 
     async def fetch_data(self, endpoint: str, params: dict) -> dict | None:
-        """Fetch data from the API using aiohttp with proper URL encoding."""
+        """
+        Робить GET запит до API з переданими параметрами.
 
-        # Використовуємо urllib.parse для безпечного кодування кирилиці і спецсимволів
-        encoded_params = {
-            k: urllib.parse.quote_plus(str(v)) for k, v in params.items()
-        }
+        aiohttp автоматично кодує params, тому вручну кодувати не потрібно.
+        """
         url = f"{self.BASE_URL}{endpoint}"
 
         try:
-            async with self.session.get(
-                url, params=encoded_params
-            ) as response:
-                response.raise_for_status()
+            async with self.session.get(url, params=params) as response:
+                response.raise_for_status()  # Викликає виняток при 4xx/5xx
                 return await response.json()
         except aiohttp.ClientResponseError as e:
-            logger.warning(
-                "Error fetching data from %s: %s", e.status, e.message
-            )
+            logger.warning("Error fetching data from %s: %s", url, e)
         except Exception as e:
-            logger.warning("Unexpected error: %s", e)
+            logger.warning(
+                "Unexpected error fetching data from %s: %s", url, e
+            )
 
         return None
 
     async def get_street_id(
         self, street_name: str, street_prefix: str
     ) -> str | None:
-        """Get the street ID based on its name and prefix."""
-
+        """
+        Отримує ID вулиці за назвою та префіксом.
+        Повертає None, якщо вулицю не знайдено.
+        """
         params = {"name": street_name, "prefix": street_prefix}
         street_info = await self.fetch_data(self.STREET_ENDPOINT, params)
-        street_id = street_info.get("id") if street_info else None
-        return street_id
+        return street_info.get("id") if street_info else None
 
     async def get_cell_keys(
         self, street_id: str, building_number: str
     ) -> dict | None:
-        """Get cell keys based on street ID and building number."""
+        """
+        Отримує ключі клітин по ID вулиці та номеру будинку.
+        Повертає None, якщо дані не отримані.
+        """
+        if not street_id:
+            logger.warning("Street ID is None. Cannot fetch cell keys.")
+            return None
 
         params = {"street": street_id, "number": building_number}
         return await self.fetch_data(self.CELL_ENDPOINT, params)
 
     async def close_session(self):
-        """Close the aiohttp session."""
+        """Закриває aiohttp сесію."""
         await self.session.close()
